@@ -1,0 +1,6 @@
+{
+  "name": "KoClimateZones",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./KoClimateZones.js"
+}
