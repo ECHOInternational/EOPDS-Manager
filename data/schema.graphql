@@ -1,0 +1,33 @@
+type Category {
+  createdBy: String
+  description: String
+  id: ID!
+  images: [Image!]
+  name: String
+}
+
+type Image {
+  attribution: String
+  baseUrl: String!
+  description: String
+  imageAttributes: [ImageAttribute!]
+  name: String!
+}
+
+type ImageAttribute {
+  name: String!
+}
+
+type Mutation {
+  """An example field added by the generator"""
+  testField: String!
+}
+
+type Query {
+  """Returns a list of Plant Categories"""
+  categories(scope: String): [Category!]!
+
+  """Find a category by ID"""
+  category(id: ID!): Category
+}
+

@@ -1,0 +1,11 @@
+i.editableStatusIndicator {
+	float: right;
+}
+
+i.fa-pencil.editableStatusIndicator {
+	color: #c8ced3;
+}
+
+i.fa-lock.editableStatusIndicator {
+	color: #f86c6b;
+}
