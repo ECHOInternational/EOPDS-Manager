@@ -21,11 +21,11 @@ class EditableTextField extends Component {
 		onChange: PropTypes.func.isRequired,
 	}
 
-	handleClick = () => {
+	_handleClick = () => {
 		this.setState({isEditing: this.props.allowEdit});
 	}
 
-	handleBlur = () => {
+	_handleBlur = () => {
 		if(this.props.value !== ''){
 			this.setState({isEditing: false});
 		}
@@ -48,13 +48,13 @@ class EditableTextField extends Component {
 						className="input-lg"
 						placeholder={this.props.placeholder}
 						onChange={this.props.onChange}
-						onBlur={this.handleBlur}
+						onBlur={this._handleBlur}
 					/>
 				</div>
 			)
 		}else{
 			return(
-				<div className="EditableTextField" onClick={this.handleClick}>
+				<div className="EditableTextField" onClick={this._handleClick}>
 					<EditableStatusIndicator editable={this.props.allowEdit} />
 					{this.props.value}
 				</div>

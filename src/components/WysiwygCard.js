@@ -54,7 +54,7 @@ class WysiwygCard extends Component {
 		showCharacterCount: PropTypes.bool,
 	}
 
-	handleChange = (evt, editor) => {
+	_handleChange = (evt, editor) => {
 		const data = editor.getData();
 		console.log(data);
 		this.props.onChange(data);
@@ -82,7 +82,7 @@ class WysiwygCard extends Component {
 					// 	console.log( 'Editor is ready to use!', editor );
 					// 	} );
 					// } }
-			        onChange={this.handleChange}
+			        onChange={this._handleChange}
 			        // onBlur={ ( event, editor ) => {
 			        //     console.log( 'Blur.', editor );
 			        // } }
