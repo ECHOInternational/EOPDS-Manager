@@ -1,23 +1,17 @@
-const { Environment, RecordSource, Store } = require('relay-runtime')
+const { Environment, RecordSource, Store } = require('relay-runtime');
 const store = new Store(new RecordSource());
 const { RelayNetworkLayer, urlMiddleware } = require('react-relay-network-modern/node8');
 
+// function currentLanguage(){
+//   acceptLanguage.languages(['en', 'es', 'fr', 'th', 'zh', 'km', 'id', 'vi', 'my', 'sw', 'hi', 'ht', 'sv', 'pt', 'de']);
+//   return acceptLanguage.get(browserLanguage());
+// }
 
-// const network = Network.create((operation, variables) => {
-//   return fetch('http://development.echocommunity.org:3000/graphql/', {
-//     method: 'POST',
-//     headers: {
-//       Accept: 'application/json',
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify({
-//       query: operation.text,
-//       variables,
-//     }),
-//   }).then(response => {
-//     return response.json()
-//   })
-// })
+// function browserLanguage(){
+//   return (navigator.languages && navigator.languages[0]) ||
+//     navigator.language ||
+//     navigator.userLanguage
+// }
 
 const network = new RelayNetworkLayer(
   [
@@ -33,9 +27,9 @@ const network = new RelayNetworkLayer(
   // opts
 );
 
-
 const environment = new Environment({
   network,
   store,
 })
-export default environment
+
+export default environment;

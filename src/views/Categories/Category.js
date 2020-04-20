@@ -1,4 +1,4 @@
-import React, { Component, Suspense } from 'react';
+import React, { Component} from 'react';
 import { Card, CardBody, CardHeader, Col, Row, Table, Badge } from 'reactstrap';
 import EditableTextField from '../../components/EditableTextField';
 import WysiwygCard from '../../components/WysiwygCard';

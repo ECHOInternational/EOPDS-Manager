@@ -1,4 +1,5 @@
 import React, { Component, lazy, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import { Bar, Line } from 'react-chartjs-2';
 import {
   Badge,
@@ -483,6 +484,9 @@ class Dashboard extends Component {
 
     return (
       <div className="animated fadeIn">
+        <div>
+          <Link to="/categories/Q2F0ZWdvcnktNmU2YTdiMWYtOWY2MS00MjU2LWE4MzAtZTZkMzk3MDQ0NTk5">I'm putting a link here.</Link>
+        </div>
         <Row>
           <Col xs="12" sm="6" lg="3">
             <Card className="text-white bg-info">

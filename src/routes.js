@@ -35,7 +35,6 @@ const Typography = React.lazy(() => import('./views/Theme/Typography'));
 const Widgets = React.lazy(() => import('./views/Widgets/Widgets'));
 const Users = React.lazy(() => import('./views/Users/Users'));
 const User = React.lazy(() => import('./views/Users/User'));
-
 const Categories = React.lazy(() => import('./views/Categories/Categories'));
 const Category = React.lazy(() => import('./views/Categories/Category'));
 const Plants = React.lazy(() => import('./views/Plants/Plants'));
