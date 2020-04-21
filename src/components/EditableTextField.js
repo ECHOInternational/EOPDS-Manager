@@ -1,66 +1,57 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { Input } from 'reactstrap';
 import EditableStatusIndicator from './EditableStatusIndicator';
 import './EditableTextField.css';
 
-
-class EditableTextField extends Component {
-	state = {
-		isEditing: (this.props.allowEdit && this.props.value === ''),
-	}
-	static defaultProps = {
-		allowEdit: true,
+const EditableTextField = (props) => {
+	let [isEditing, setIsEditing] = useState(props.allowEdit && props.value === '');
+	
+	const _handleClick = () => {
+		setIsEditing(props.allowEdit);
 	}
 
-	static propTypes = {
-		allowEdit: PropTypes.bool,
-		value: PropTypes.string,
-		name: PropTypes.string.isRequired,
-		placeholder: PropTypes.string,
-		onChange: PropTypes.func.isRequired,
+	const _handleBlur = () => {
+		setIsEditing(props.value === '')
 	}
 
-	_handleClick = () => {
-		this.setState({isEditing: this.props.allowEdit});
+	if(isEditing){
+		return(
+			<div className="EditableTextField" >
+				<Input
+					autoFocus
+					value={props.value}
+					bsSize="lg"
+					type="text"
+					id="name"
+					name={props.name}
+					className="input-lg"
+					placeholder={props.placeholder}
+					onChange={props.onChange}
+					onBlur={_handleBlur}
+				/>
+			</div>
+		)
+	} else {
+		return(
+			<div className="EditableTextField" onClick={_handleClick}>
+				<EditableStatusIndicator editable={props.allowEdit} />
+				{props.value}
+			</div>
+		)
 	}
+}
 
-	_handleBlur = () => {
-		if(this.props.value !== ''){
-			this.setState({isEditing: false});
-		}
-	}
+EditableTextField.propTypes = {
+	allowEdit: PropTypes.bool,
+	value: PropTypes.string,
+	name: PropTypes.string.isRequired,
+	placeholder: PropTypes.string,
+	onChange: PropTypes.func.isRequired,
+}
 
-
-
-	render(){
-		const isEditing = this.state.isEditing;
-		if(isEditing){
-			return(
-				<div className="EditableTextField" >
-					<Input
-						autoFocus
-						value={this.props.value}
-						bsSize="lg"
-						type="text"
-						id="name"
-						name={this.props.name}
-						className="input-lg"
-						placeholder={this.props.placeholder}
-						onChange={this.props.onChange}
-						onBlur={this._handleBlur}
-					/>
-				</div>
-			)
-		}else{
-			return(
-				<div className="EditableTextField" onClick={this._handleClick}>
-					<EditableStatusIndicator editable={this.props.allowEdit} />
-					{this.props.value}
-				</div>
-			)
-		}
-	}
+EditableTextField.defaultProps = {
+	allowEdit: true,
 }
 
 export default EditableTextField;
