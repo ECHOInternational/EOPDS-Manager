@@ -2,41 +2,60 @@ import React, { Component} from 'react';
 import { Card, CardBody, CardHeader, Col, Row, Table, Badge } from 'reactstrap';
 import EditableTextField from '../../components/EditableTextField';
 import WysiwygCard from '../../components/WysiwygCard';
-// import graphql from 'babel-plugin-relay/macro';
+import { gql, useQuery } from '@apollo/client';
 
-class Category extends Component {
-	state = {
-		name: '',
-		description: '',
-		id: "shdj-2394-ks87-shdd-23jj",
-	}
+const GET_CATEGORY = gql`
+  query Category($id: [String!]) {
+    categories(id: $id) {
+      nodes{
+      	id
+      	name
+      	description
+      	uuid
+      }
+    }
+  }
+`
 
-	_onChangeName = (evt) => {
-		this.setState({ name: evt.target.value });
-	}
-	_onChangeDescription = (value) => {
-		this.setState({ description: value });
-	}
 
-	render() {
-		const {match: {params} } = this.props;
-		const {id} = params;
-		return (
-			<div className="animated fade-in">
-				<CategoryView
-					name={this.state.name}
-					description={this.state.description}
-					id={this.state.id}
-					onChangeName={this._onChangeName}
-					onChangeDescription={this._onChangeDescription}
-				/>
-			</div>
-		);
+
+const Category = (props) => {
+	
+	const {match: {params} } = props;
+	const {id} = params;
+
+	const { loading, error, data } = useQuery(GET_CATEGORY, {
+		variables: { id },
+	});
+
+	if (loading) return 'Loading...';
+	if (error) return `Error! ${error.message}`
+
+	const category = data.categories.nodes[0];
+
+	const _onChangeName = (evt) => {
+		// this.setState({ name: evt.target.value });
+		console.log('Name changed to:', evt.target.value);
 	}
+	const _onChangeDescription = (value) => {
+		// this.setState({ description: value });
+		console.log('Description changed to:', value);
+	}
+		
+	return (
+		<CategoryView
+			name={category.name}
+			key={category.id}
+			description={category.description}
+			id={category.id}
+			onChangeName={_onChangeName}
+			onChangeDescription={_onChangeDescription}
+		/>
+	);
 }
 
 
-const CategoryView = props => {
+const CategoryView = (props) => {
 	return(
 		<div>
 			<Row>
@@ -130,8 +149,5 @@ const CategoryView = props => {
 		</div>
 	)
 }
-
-
-
 
 export default Category;

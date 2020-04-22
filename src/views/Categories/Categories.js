@@ -4,9 +4,9 @@ import { Card, CardHeader, CardBody, Table, Button} from 'reactstrap';
 // import EditableTextField from '../../components/EditableTextField';
 // import WysiwygCard from '../../components/WysiwygCard';
 // import CategoriesTable from './CategoriesTable';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 
-const CATEGORIES = gql`
+const GET_CATEGORIES = gql`
 	{
 		categories{
 	    nodes{
@@ -17,8 +17,33 @@ const CATEGORIES = gql`
 	}
 `
 
+const DELETE_CATEGORY = gql`
+	mutation DeleteCategory($id: ID!){
+		deleteCategory(categoryId: $id){
+			categoryId
+		}
+	}
+`
+
+
 const Categories = (props) => {
-	const {loading, error, data } = useQuery(CATEGORIES);
+	const {loading, error, data } = useQuery(GET_CATEGORIES);
+	const [deleteCategory] = useMutation(
+		DELETE_CATEGORY,
+		{
+			update(cache, { data: { deleteCategory } }) {
+				const { categories } = cache.readQuery({ query: GET_CATEGORIES});
+				cache.writeQuery({
+					query: GET_CATEGORIES,
+					data: { categories:
+						{
+							nodes: categories.nodes.filter((node) => node.id !== deleteCategory.categoryId)
+						}
+					},
+				});
+			}
+		}
+	);
 
 	if (loading) return 'Loading...';
 	if (error) return `Error! ${error.message}`
@@ -27,8 +52,8 @@ const Categories = (props) => {
 		props.history.push(`/categories/${id}`);
 	}
 
-	const _onCategoryDelete = (e) => {
-		console.log('deleted', e)
+	const _onCategoryDelete = (id) => {
+		deleteCategory({variables: {id}});
 	}
 
 	return(
