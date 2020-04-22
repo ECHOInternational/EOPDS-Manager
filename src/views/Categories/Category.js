@@ -2,9 +2,7 @@ import React, { Component} from 'react';
 import { Card, CardBody, CardHeader, Col, Row, Table, Badge } from 'reactstrap';
 import EditableTextField from '../../components/EditableTextField';
 import WysiwygCard from '../../components/WysiwygCard';
-import {QueryRenderer} from 'react-relay';
-import graphql from 'babel-plugin-relay/macro';
-import environment from '../../Environment.js';
+// import graphql from 'babel-plugin-relay/macro';
 
 class Category extends Component {
 	state = {
@@ -13,10 +11,10 @@ class Category extends Component {
 		id: "shdj-2394-ks87-shdd-23jj",
 	}
 
-	onChangeName = (evt) => {
+	_onChangeName = (evt) => {
 		this.setState({ name: evt.target.value });
 	}
-	onChangeDescription = (value) => {
+	_onChangeDescription = (value) => {
 		this.setState({ description: value });
 	}
 
@@ -24,43 +22,15 @@ class Category extends Component {
 		const {match: {params} } = this.props;
 		const {id} = params;
 		return (
-			<QueryRenderer
-				environment={environment}
-				query={graphql`
-					query CategoryQuery($categoryID: ID!) {
-						category(id: $categoryID){
-							id
-							name
-							description
-						}
-					}
-				`}
-				variables={{
-					categoryID: id,
-				}}
-				render={({error, props}) => {
-					if (error) {
-						return <div>Error!</div>;
-					}
-					if (!props) {
-						return <div>Loading...</div>
-					}
-					if (!props.category) {
-						return <div>Category Not Found.</div>
-					}
-					return (
-						<div className="animated fade-in">
-							<CategoryView
-								name={props.category.name}
-								description={props.category.description}
-								id={props.category.id}
-								onChangeName={this.onChangeName}
-								onChangeDescription={this.onChangeDescription}
-							/>
-						</div>
-					)
-				}}
-			/>
+			<div className="animated fade-in">
+				<CategoryView
+					name={this.state.name}
+					description={this.state.description}
+					id={this.state.id}
+					onChangeName={this._onChangeName}
+					onChangeDescription={this._onChangeDescription}
+				/>
+			</div>
 		);
 	}
 }
