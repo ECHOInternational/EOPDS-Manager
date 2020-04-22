@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { Card, CardHeader, CardBody, Table, Button} from 'reactstrap';
 // import EditableTextField from '../../components/EditableTextField';
 // import WysiwygCard from '../../components/WysiwygCard';
-import graphql from 'babel-plugin-relay/macro';
 // import CategoriesTable from './CategoriesTable';
 
 class Categories extends Component {

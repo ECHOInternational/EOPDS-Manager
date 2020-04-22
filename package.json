@@ -30,7 +30,7 @@
     "font-awesome": "^4.7.0",
     "graphql": "^14.6.0",
     "jquery": "^1.9.1",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.13.1",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-app-polyfill": "^1.0.1",
@@ -45,7 +45,7 @@
     "yarn": "^1.22.4"
   },
   "devDependencies": {
-    "react-scripts": "^3.0.1"
+    "react-scripts": "^3.4.1"
   },
   "scripts": {
     "start": "react-scripts start",
