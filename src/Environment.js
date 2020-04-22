@@ -1,35 +1,31 @@
-const { Environment, RecordSource, Store } = require('relay-runtime');
-const store = new Store(new RecordSource());
-const { RelayNetworkLayer, urlMiddleware } = require('react-relay-network-modern/node8');
+import {
+  Environment,
+  Network,
+  RecordSource,
+  Store,
+} from 'relay-runtime';
 
-// function currentLanguage(){
-//   acceptLanguage.languages(['en', 'es', 'fr', 'th', 'zh', 'km', 'id', 'vi', 'my', 'sw', 'hi', 'ht', 'sv', 'pt', 'de']);
-//   return acceptLanguage.get(browserLanguage());
-// }
-
-// function browserLanguage(){
-//   return (navigator.languages && navigator.languages[0]) ||
-//     navigator.language ||
-//     navigator.userLanguage
-// }
-
-const network = new RelayNetworkLayer(
-  [
-    urlMiddleware({
-      url: (req) => Promise.resolve('http://development.echocommunity.org:3000/graphql/'),
-    }),
-    (next) => async (req) => {
-      req.fetchOpts.headers['ACCEPT-LANGUAGE'] = 'es';
-      const res = await next(req);
-      return res;
+function fetchQuery(
+  operation,
+  variables,
+) {
+  return fetch('http://localhost:3000/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
-  ],
-  // opts
-);
+    body: JSON.stringify({
+      query: operation.text,
+      variables,
+    }),
+  }).then(response => {
+    return response.json();
+  });
+}
 
 const environment = new Environment({
-  network,
-  store,
-})
+  network: Network.create(fetchQuery),
+  store: new Store(new RecordSource()),  
+});
 
 export default environment;
