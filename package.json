@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.0.0-beta.43",
+    "@apollo/react-components": "^3.1.5",
     "@ckeditor/ckeditor5-build-classic": "github:ECHOInternational/ckeditor5-build-classic#EOPDS",
     "@ckeditor/ckeditor5-react": "^2.1.0",
     "@coreui/coreui": "^2.1.12",
@@ -20,6 +21,7 @@
     "@coreui/icons": "0.3.0",
     "@coreui/react": "^2.5.1",
     "accept-language": "^3.0.18",
+    "apollo-client": "^2.6.8",
     "bootstrap": "^4.3.1",
     "chart.js": "^2.8.0",
     "classnames": "^2.2.6",
