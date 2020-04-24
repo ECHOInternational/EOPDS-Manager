@@ -1,0 +1,16 @@
+@import "~@coreui/coreui/scss/variables";
+
+i{
+	&.editableStatusIndicator{
+		float: right;
+		&.fa-pencil{
+			color: $gray-400;
+		}
+		&.fa-lock{
+			color: $warning;
+		}
+		&.fa-exclamation-triangle{
+			color: $danger;
+		}
+	}	
+}

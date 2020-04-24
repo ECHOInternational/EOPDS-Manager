@@ -22,11 +22,19 @@ const client = new ApolloClient({
   })
 });
 
+const getUserConfirmation = (dialogKey, callback) => {
+  const dialogTrigger = window[Symbol.for(dialogKey)];
+  if (dialogTrigger) {
+    return dialogTrigger(callback);
+  }
+  callback(true);
+}
+
 class App extends Component {
   render() {
     return (
         <ApolloProvider client={client}>
-          <HashRouter>
+          <HashRouter getUserConfirmation ={getUserConfirmation}>
               <React.Suspense fallback={loading()}>
                 <Switch>
                   <Route exact path="/login" name="Login Page" render={props => <Login {...props}/>} />

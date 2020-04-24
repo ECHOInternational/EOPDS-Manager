@@ -15,6 +15,10 @@ const EditableTextField = (props) => {
 		setIsEditing(props.value === '')
 	}
 
+	const _handleChange = (evt) => {
+		props.onChange(evt.target.value);
+	}
+
 	if(isEditing){
 		return(
 			<div className="EditableTextField" >
@@ -27,7 +31,7 @@ const EditableTextField = (props) => {
 					name={props.name}
 					className="input-lg"
 					placeholder={props.placeholder}
-					onChange={props.onChange}
+					onChange={_handleChange}
 					onBlur={_handleBlur}
 				/>
 			</div>

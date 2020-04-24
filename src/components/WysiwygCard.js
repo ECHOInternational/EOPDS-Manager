@@ -41,7 +41,8 @@ class WysiwygCard extends Component {
 	static defaultProps = {
 		allowEdit: true,
 		showWordCount: false,
-		showCharacterCount: false
+		showCharacterCount: false,
+		hasChanges: false,
 	}
 
 	static propTypes = {
@@ -52,12 +53,18 @@ class WysiwygCard extends Component {
 		onChange: PropTypes.func.isRequired,
 		showWordCount: PropTypes.bool,
 		showCharacterCount: PropTypes.bool,
+		hasChanges: PropTypes.bool,
 	}
 
 	_handleChange = (evt, editor) => {
 		const data = editor.getData();
-		console.log(data);
 		this.props.onChange(data);
+	}
+
+	_statusClass = () => {
+		if(this.props.error){ return "card-accent-danger" };
+		if(this.props.hasChanges){ return "card-accent-success" };
+		return "";
 	}
 
 	render() {
@@ -65,30 +72,19 @@ class WysiwygCard extends Component {
 			placeholder: this.props.placeholder
 		} 
 		return(
-			<Card>
+			<Card className={this._statusClass()}>
 				<CardHeader>
-					{this.props.name}
+					{this.props.name} {this.props.error}
 					<div className="card-header-actions">
-						<EditableStatusIndicator editable={this.props.allowEdit} />
+						<EditableStatusIndicator editable={this.props.allowEdit} error={this.props.error} />
 		            </div>
-					
 				</CardHeader>
 				<CKEditor
 			        editor={ ClassicEditor }
 			        data={this.props.value}
 			        disabled={!this.props.allowEdit}
 			        config={config}
-					// onInit={ editor => {
-					// 	console.log( 'Editor is ready to use!', editor );
-					// 	} );
-					// } }
 			        onChange={this._handleChange}
-			        // onBlur={ ( event, editor ) => {
-			        //     console.log( 'Blur.', editor );
-			        // } }
-			        // onFocus={ ( event, editor ) => {
-			        //     console.log( 'Focus.', editor );
-			        // } }
 			    />
 			    <TextCounter text={this.props.value} showWordCount={this.props.showWordCount} showCharacterCount={this.props.showCharacterCount} />
 			</Card>
