@@ -54,6 +54,8 @@ class WysiwygCard extends Component {
 		showWordCount: PropTypes.bool,
 		showCharacterCount: PropTypes.bool,
 		hasChanges: PropTypes.bool,
+		label: PropTypes.string.isRequired,
+		error: PropTypes.object,
 	}
 
 	_handleChange = (evt, editor) => {
@@ -74,7 +76,7 @@ class WysiwygCard extends Component {
 		return(
 			<Card className={this._statusClass()}>
 				<CardHeader>
-					{this.props.name} {this.props.error}
+					{this.props.label} {this.props.error && this.props.error.message}
 					<div className="card-header-actions">
 						<EditableStatusIndicator editable={this.props.allowEdit} error={this.props.error} />
 		            </div>

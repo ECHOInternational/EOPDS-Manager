@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React from "react";
 import { Prompt } from "react-router-dom";
-import { Button, Card, CardBody, CardHeader, Col, Modal, ModalBody, ModalFooter, ModalHeader, Row } from 'reactstrap';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import cuid from "cuid";
 
 

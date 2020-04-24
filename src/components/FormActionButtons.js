@@ -9,7 +9,7 @@ export function SaveButton(props){
 	return(
 		<Button 
 			onClick={props.onClick}
-			disabled={!props.hasChanges || !props.canSave || props.saving}
+			disabled={!props.hasChanges || !props.canSave}
 			outline={!props.hasChanges || !props.canSave} 
 			color={color}
 		>

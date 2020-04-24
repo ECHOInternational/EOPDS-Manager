@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import { Card, CardBody, CardHeader, Col, Row } from 'reactstrap';
 import { SaveButton, RevertButton } from '../../components/FormActionButtons';
 import EditableTextField from '../../components/EditableTextField';
 import WysiwygCard from '../../components/WysiwygCard';
 import { gql, useMutation } from '@apollo/client';
+import { useForm, Controller } from 'react-hook-form'
 import PreventTransitionPrompt from "../../components/PreventTransitionPrompt";
-
 
 const UPDATE_CATEGORY = gql`
 	mutation UpdateCategory($id: ID!, $name: String, $description: String, $language: String){
@@ -20,82 +20,65 @@ const UPDATE_CATEGORY = gql`
 const CategoryForm = (props) => {
 	const [updateCategory] = useMutation(UPDATE_CATEGORY);
 
-	// Each input gets state to track changes
-	const [name, setName] = useState(props.category.name);
-	const [description, setDescription] = useState(props.category.description);
-	const [nameErr, setNameErr] = useState(props.category.name);
-	const [descriptionErr, setDescriptionErr] = useState(props.category.description);
-
-
-	const [errors, setErrors] = useState([]);
-
-	const [dirtyFields, setDirtyFields] = useState([]);
-
-	const _updateRecordState = () => {
-		// Identify changed fields
-		let fieldsWithChanges = [];
-		if(name !== props.category.name){fieldsWithChanges.push('name')};
-		if(description !== props.category.description){fieldsWithChanges.push('description')};
-		setDirtyFields(fieldsWithChanges);
-
-		
-
-		setNameErr(validateNotBlank(name));
-		setDescriptionErr(validateNotBlank(description));
-	};
-
-	const validateNotBlank = (value) => {
-		if(!RegExp(/\S/).test(value)){return('cannot be blank.');}
-	};
-
-	const _revert = () => {
-		setName(props.category.name);
-		setDescription(props.category.description);
-	};
-
-	const _save = () => {
-		updateCategory({variables: { id: props.category.id, }})
+	const defaultValues = {
+		name: props.category.name,
+		description: props.category.description
 	}
 
-	useEffect( _updateRecordState, [name, description]);
+	const { register, handleSubmit, errors, formState, reset, control } = useForm({
+		defaultValues,
+		mode: 'onChange'
+	});
+
+	const { dirty, dirtyFields, isSubmitting, isValid } = formState;
+	const onSubmit = data => { console.log(data) }
 
 	return(
-		<div>
+		<form onSubmit={handleSubmit(onSubmit)}>
 			<PreventTransitionPrompt
-	          when={dirtyFields.length > 0}
+	          when={dirty}
 	          title="Category Not Saved"
 	          message={`Do you want to save the changes made to "${props.category.name}"?`}
-	          onSave={()=> { console.log('save Clicked.')}}
+	          onSave={handleSubmit(onSubmit)}
 	        />
 			<Row>
 				<Col xs="12">
-					<Card className={dirtyFields.includes('name') ? "card-accent-success" : ""}>
+					<Card>
 						<CardBody>
-							<EditableTextField
-								name = "Name"
-								value = {name}
-								placeholder = "Enter a category name"
-								onChange = {setName}
-								allowEdit = {props.allowEdit}
-								hasChanges = {dirtyFields.includes('name')}
-								error={nameErr}
-							/>
+						<Controller
+							as={EditableTextField}
+							name="name"
+							control={control}
+							rules={{
+								required: true,
+								pattern: /\S/
+							}}
+							placeholder = "Enter a category name"
+							allowEdit = {true}
+							error={errors.description}
+							hasChanges={dirtyFields.has("name")}
+						/>
 						</CardBody>
 					</Card>
 				</Col>
 			</Row>
 			<Row>
 				<Col xs="12" sm="8">
-					<WysiwygCard
-						name = "Description"
-						value = {description}
-						placeholder = "Enter a description"
-						onChange = {setDescription}
-						allowEdit = {props.allowEdit}
-						hasChanges = {dirtyFields.includes('description')}
-						showWordCount = {true}
-						error={descriptionErr}
-					/>
+					<Controller
+						as={WysiwygCard}
+						name="description"
+						control={control}
+						rules={{
+							required: true,
+							pattern: /\S/
+						}}
+						label="Description"
+						allowEdit={true} 
+						showWordCount={true}
+						error={errors.description}
+						hasChanges={dirtyFields.has("description")}
+						placeholder="Enter a description"
+						/>
 				</Col>
 				<Col xs="12" sm="4">
 					<Card className="card-accent-info">
@@ -103,13 +86,14 @@ const CategoryForm = (props) => {
 							Status
 						</CardHeader>
 						<CardBody>
-							<SaveButton hasChanges={dirtyFields.length > 0} canSave={!(errors.length > 0)} saving={false} onClick={_save}/>
-							<RevertButton hasChanges={dirtyFields.length > 0} onClick={_revert}/>
+							<SaveButton hasChanges={dirty} canSave={isValid} saving={false} onClick={handleSubmit(onSubmit)}/>
+							
+							<RevertButton hasChanges={dirty} onClick={() => {reset(defaultValues)}}/>
 						</CardBody>
 					</Card>
 				</Col>
 			</Row>
-		</div>
+		</form>
 	)
 }
 export default CategoryForm;
