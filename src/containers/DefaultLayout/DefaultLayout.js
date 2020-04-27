@@ -54,7 +54,7 @@ const DefaultLayout = (props) => {
       {
         name: 'Dashboard',
         url: '/dashboard',
-        icon: 'icon-speedometer',
+        icon: 'far fa-tachometer-alt',
       },
       {
         title: true,
@@ -63,7 +63,7 @@ const DefaultLayout = (props) => {
       {
         name: "Categories",
         url: '/categories',
-        icon: 'fa fa-folder-open-o',
+        icon: 'fad fa-folder-tree',
         badge: {
           variant: 'secondary',
           text: `${data.categories.totalCount}`,
@@ -72,7 +72,7 @@ const DefaultLayout = (props) => {
       {
         name: "Plants",
         url: '/plants',
-        icon: 'fa fa-pagelines',
+        icon: 'fad fa-trees',
          badge: {
           variant: 'secondary',
           text: 'XXX',
@@ -81,7 +81,7 @@ const DefaultLayout = (props) => {
       {
         name: "Varieties",
         url: '/varieties',
-        icon: 'fa fa-leaf',
+        icon: 'fad fa-seedling',
         badge: {
           variant: 'secondary',
           text: 'XXXX',
