@@ -2,9 +2,13 @@ import React from 'react';
 import {Button} from 'reactstrap';
 
 export function SaveButton(props){
-	const text = props.saving ? "Saving..." : "Save";
-	const color = props.canSave ? "success" : "danger";
+	let text = "Save"
+	if(props.saving){text = "Saving..."}
+	if(!props.isNew && !props.hasChanges){text = "Saved"};
 
+	let color = "success"
+	if(!props.canSave){color = "danger"}
+	if(!props.isNew && !props.hasChanges){color = "info"};
 
 	return(
 		<Button 
@@ -12,6 +16,7 @@ export function SaveButton(props){
 			disabled={!props.hasChanges || !props.canSave}
 			outline={!props.hasChanges || !props.canSave} 
 			color={color}
+			
 		>
 			{text}
 		</Button>

@@ -1,14 +1,12 @@
 import React from 'react';
-// import { Card, CardBody, CardHeader, Col, Row, Table, Badge } from 'reactstrap';
-import { Card, CardHeader, CardBody, Table, Button} from 'reactstrap';
-// import EditableTextField from '../../components/EditableTextField';
-// import WysiwygCard from '../../components/WysiwygCard';
-// import CategoriesTable from './CategoriesTable';
+import { Card, CardHeader, Button, Badge, ListGroupItem, ListGroup} from 'reactstrap';
+import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
 import { gql, useQuery, useMutation } from '@apollo/client';
 
 const GET_CATEGORIES = gql`
 	{
 		categories{
+			totalCount
 	    nodes{
 	      id
 	      name
@@ -25,7 +23,6 @@ const DELETE_CATEGORY = gql`
 	}
 `
 
-
 const Categories = (props) => {
 	const {loading, error, data } = useQuery(GET_CATEGORIES);
 	const [deleteCategory] = useMutation(
@@ -37,6 +34,7 @@ const Categories = (props) => {
 					query: GET_CATEGORIES,
 					data: { categories:
 						{
+							totalCount: categories.totalCount - 1,
 							nodes: categories.nodes.filter((node) => node.id !== deleteCategory.categoryId)
 						}
 					},
@@ -58,49 +56,34 @@ const Categories = (props) => {
 
 	return(
 		<Card>
-			<CardHeader>
-				Plant Categories
+			<CardHeader className="d-flex justify-content-between">
+				<h5>Plant Categories <Badge>{data.categories.totalCount}</Badge></h5>
+				<Button size="sm" color="success" outline><i className="fa fa-plus"></i> New Category</Button>
 			</CardHeader>
-			<CardBody>
-				<Table responsive hover> 
-					<thead>
-						<tr>
-							<th>Name</th>
-							<th>&nbsp;</th>
-						</tr>
-					</thead>
-					<tbody>
-						{data.categories.nodes.map(category => (
-							<CategoryRow
-								key={category.id}
-								id={category.id}
-								name={category.name}
-								onClick={_onCategoryClick}
-								onDelete={_onCategoryDelete}
-							/>
-						))}
-					</tbody>
-				</Table>
-			</CardBody>
+			<ListGroup>
+				{data.categories.nodes.map(category => (
+					<CategoryListGroupItem
+						key={category.id}
+						id={category.id}
+						name={category.name}
+						onClick={_onCategoryClick}
+						onDelete={_onCategoryDelete}
+					/>
+				))}
+			</ListGroup>
 		</Card>
 	);
 };
 
-const CategoryRow = (props) => {
+const CategoryListGroupItem = (props) => {
 	return(
-		<tr style={{cursor: 'pointer'}}>
-			<td	onClick={() => props.onClick(props.id) }>{props.name}</td>
-			<td style={{textAlign: 'right'}}>
-				<Button
-					onClick={() => props.onDelete(props.id)}
-					size="sm"
-					color="danger"
-					outline
-				>
-					<i className="fa fa-trash"></i> Delete
-				</Button>
-			</td>
-		</tr>
+		<ListGroupItem onClick={() => props.onClick(props.id) } className="d-flex justify-content-between" tag="a" style={{cursor: 'pointer'}} action>
+			{props.name}
+			<DeleteConfirmationModal
+				itemName={props.name}
+				onConfirmDelete={() => props.onDelete(props.id)}
+			/>
+		</ListGroupItem>
 	)
 }
 

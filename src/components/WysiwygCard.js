@@ -88,7 +88,7 @@ class WysiwygCard extends Component {
 			        config={config}
 			        onChange={this._handleChange}
 			    />
-			    <TextCounter text={this.props.value} showWordCount={this.props.showWordCount} showCharacterCount={this.props.showCharacterCount} />
+			    <TextCounter text={this.props.value || ''} showWordCount={this.props.showWordCount} showCharacterCount={this.props.showCharacterCount} />
 			</Card>
 		)
 	}

@@ -2,6 +2,7 @@ import React, { Component, Suspense } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import * as router from 'react-router-dom';
 import { Container } from 'reactstrap';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import {
   // AppAside,
   AppFooter,
@@ -23,24 +24,107 @@ import routes from '../../routes';
 const DefaultFooter = React.lazy(() => import('./DefaultFooter'));
 const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
 
-  
 
-class DefaultLayout extends Component {
-
-  loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
-
-  signOut(e) {
-    e.preventDefault()
-    this.props.history.push('/login')
+const GET_CATEGORIES = gql`
+  {
+    categories{
+      totalCount
+    }
   }
+`  
 
-  render() {
+const DefaultLayout = (props) => {
+
+  const loadingIndc = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>;
+
+  const _signOut = (e) => {
+      e.preventDefault()
+      props.history.push('/login')
+    }
+
+ 
+    const {loading, error, data } = useQuery(GET_CATEGORIES);
+
+    if (loading) return loadingIndc;
+    if (error) return `Error! ${error.message}`
+
+
+    const mynav = {
+      items: [
+      {
+        name: 'Dashboard',
+        url: '/dashboard',
+        icon: 'icon-speedometer',
+      },
+      {
+        title: true,
+        name: 'Plant Data',
+      },
+      {
+        name: "Categories",
+        url: '/categories',
+        icon: 'fa fa-folder-open-o',
+        badge: {
+          variant: 'secondary',
+          text: `${data.categories.totalCount}`,
+        },
+      },
+      {
+        name: "Plants",
+        url: '/plants',
+        icon: 'fa fa-pagelines',
+         badge: {
+          variant: 'secondary',
+          text: 'XXX',
+        },
+      },
+      {
+        name: "Varieties",
+        url: '/varieties',
+        icon: 'fa fa-leaf',
+        badge: {
+          variant: 'secondary',
+          text: 'XXXX',
+        },
+      },
+      {
+        title: true,
+        name: 'Plant Attributes',
+      },
+      {
+        name: "Antinutrients",
+        url: '/attributes/antinutrients',
+        icon: 'icon-shield'
+      },
+      {
+        name: "Growth Habits",
+        url: '/attributes/growth-habits',
+        icon: 'icon-chart'
+      },
+      {
+        name: "Tolerances",
+        url: '/attributes/tolerances',
+        icon: 'icon-directions'
+      },
+      {
+        name: 'Climate Zones',
+        icon: 'icon-map',
+        children: [
+          {
+            name: "Köppen",
+            url: '/attributes/koppen-climate-zones',
+          },
+        ]
+      },
+      ]
+    }
+
     return (
       <div className="app">
         
         <AppHeader fixed>
-          <Suspense  fallback={this.loading()}>
-            <DefaultHeader onLogout={e=>this.signOut(e)}/>
+          <Suspense  fallback={loadingIndc}>
+            <DefaultHeader onLogout={_signOut}/>
           </Suspense>
         </AppHeader>
         <div className="app-body">
@@ -48,7 +132,7 @@ class DefaultLayout extends Component {
             <AppSidebarHeader />
             <AppSidebarForm />
             <Suspense>
-            <AppSidebarNav navConfig={navigation} {...this.props} router={router}/>
+            <AppSidebarNav navConfig={mynav} {...props} router={router}/>
             </Suspense>
             <AppSidebarFooter />
             <AppSidebarMinimizer />
@@ -56,7 +140,7 @@ class DefaultLayout extends Component {
           <main className="main">
             <AppBreadcrumb appRoutes={routes} router={router}/>
             <Container fluid>
-              <Suspense fallback={this.loading()}>
+              <Suspense fallback={loadingIndc}>
                 <Switch>
                   {routes.map((route, idx) => {
                     return route.component ? (
@@ -84,13 +168,12 @@ class DefaultLayout extends Component {
           */}
         </div>
         <AppFooter>
-          <Suspense fallback={this.loading()}>
+          <Suspense fallback={loadingIndc}>
             <DefaultFooter />
           </Suspense>
         </AppFooter>
       </div>
     );
-  }
 }
 
 export default DefaultLayout;

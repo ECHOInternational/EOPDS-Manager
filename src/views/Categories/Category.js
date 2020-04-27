@@ -9,8 +9,21 @@ const GET_CATEGORY = gql`
 		id
 		name
 		description
-		uuid
 		createdBy
+		translations {
+			id
+			locale
+		}
+		versions{
+			totalCount
+			nodes{
+				id
+				date
+				user
+				name
+				description
+			}
+		}
     }
   }
 `
