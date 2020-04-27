@@ -1,8 +1,12 @@
-import React from 'react';
-import { Badge, Collapse, ListGroup, ListGroupItem } from 'reactstrap';
+import React, {useState} from 'react';
+import { Badge, Collapse, ListGroup, ListGroupItem, Button } from 'reactstrap';
+import './RevisionCollapse.scss';
 
 
 const RevisionCollapse = (props) => {
+	const [toggle, setToggle] = useState(false);
+
+
 	const _onClickItem = (id) => {
 		props.onSelect(
 			props.revisions.nodes.find(node => node.id === id)
@@ -10,9 +14,12 @@ const RevisionCollapse = (props) => {
 	}
 	return(
 		<React.Fragment>
-			<h5>Revisions <Badge>{props.revisions.totalCount}</Badge></h5>
-			<Collapse isOpen={true}>
-				<ListGroup>
+			<div className="collapse-header">
+				<span>Revisions <Badge>{props.revisions.totalCount}</Badge></span>
+				<CollapseButton open={toggle} onClick={() => {setToggle(!toggle)}} />
+			</div>
+			<Collapse isOpen={toggle}>
+				<ListGroup flush>
 				{props.revisions.nodes.map(revision => (
 					<RevisionItem 
 						key={revision.id}
@@ -27,6 +34,10 @@ const RevisionCollapse = (props) => {
 			</Collapse>
 		</React.Fragment>
 	)
+}
+
+const CollapseButton = (props) => {
+	return <Button size="sm" color="link" onClick={props.onClick}><i class={`fa fa-${props.open ? "angle-double-up" : "angle-double-down"}`}></i></Button>
 }
 
 const RevisionItem = (props) => {

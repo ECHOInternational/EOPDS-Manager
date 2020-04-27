@@ -1,5 +1,17 @@
 import React from 'react';
-import { Card, CardHeader, Button, Badge, ListGroupItem, ListGroup} from 'reactstrap';
+import { Card, CardHeader, Button, Badge, ListGroupItem, ListGroup,   Nav,
+  Navbar,
+  NavbarBrand,
+  NavbarToggler,
+  NavItem,
+  NavLink,
+  ButtonGroup,
+  Form,
+  Input,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText
+ } from 'reactstrap';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
 import { gql, useQuery, useMutation } from '@apollo/client';
 
@@ -55,12 +67,15 @@ const Categories = (props) => {
 	}
 
 	return(
-		<Card>
-			<CardHeader className="d-flex justify-content-between">
-				<h5>Plant Categories <Badge>{data.categories.totalCount}</Badge></h5>
-				<Button size="sm" color="success" outline><i className="fa fa-plus"></i> New Category</Button>
-			</CardHeader>
-			<ListGroup>
+		<React.Fragment>
+			<ListControlNavbar
+				title="Plant Categories"
+				listSize={data.categories.totalCount}
+				alphaSort="up"
+				listMode="list"
+				addButtonText="Add Category"
+			/>
+			<ListGroup flush>
 				{data.categories.nodes.map(category => (
 					<CategoryListGroupItem
 						key={category.id}
@@ -71,9 +86,80 @@ const Categories = (props) => {
 					/>
 				))}
 			</ListGroup>
-		</Card>
+		</React.Fragment>
 	);
 };
+
+const ListControlNavbar = (props) => {
+	const _setAlphaSort = (direction) => {
+		console.log(direction);
+	}
+
+	const _setListMode = (mode) => {
+		console.log(mode);
+	}
+
+	const _handleAddClick = () => {
+		console.log("Add Clicked");
+	}
+
+	return(
+		<Navbar light className="mb-4">
+			<NavbarBrand>{props.title} {props.listSize ? <Badge>{props.listSize}</Badge> : <span></span>}</NavbarBrand>
+			<Form inline style={{flex: "1 1 auto"}} className="mr-2">
+				<InputGroup style={{width: "100%"}} className="m-auto">
+					<InputGroupAddon addonType="prepend">
+						<InputGroupText>
+							<i className="fas fa-search"></i>
+						</InputGroupText>
+					</InputGroupAddon>
+					<Input type="search" name="search" id="listSearch" />
+				</InputGroup>
+			</Form>
+			<Nav>
+				<AlphaSortNavItem reverse={props.alphaSort === 'down'} className="mr-2" onChange={_setAlphaSort}/>
+				<ListModeNavItem grid={props.listMode === 'grid'} className="mr-2" onChange={_setListMode} />
+			</Nav>
+			<Nav navbar>
+			  
+			  <NavItem>
+			    <Button color="link" onClick={_handleAddClick}><i className="fas fa-plus"></i> {props.addButtonText}</Button>
+			  </NavItem>
+			</Nav>
+		</Navbar>
+	)
+}
+
+const AlphaSortNavItem = (props) => {
+	return(
+		<NavItem className={props.className}>
+			<ButtonGroup>
+				<Button active={!props.reverse} onClick={() => props.onChange('forward')}>
+					<i className="fas fa-sort-alpha-up"></i>
+				</Button>
+				<Button active={props.reverse} onClick={() => props.onChange('reverse')}>
+					<i className="fas fa-sort-alpha-down-alt"></i>
+				</Button>
+			</ButtonGroup>
+		</NavItem>
+	)
+}
+
+const ListModeNavItem = (props) => {
+	return(
+		<NavItem className={props.className}>
+			<ButtonGroup>
+			    <Button active={!props.grid} onClick={() => props.onChange('list')}>
+			    	<i className="fas fa-list"></i>
+			    </Button>
+			    <Button active={props.grid} onClick={() => props.onChange('grid')}>
+			    	<i className="fas fa-th"></i>
+			    </Button>
+			</ButtonGroup>
+		</NavItem>
+	)
+}
+
 
 const CategoryListGroupItem = (props) => {
 	return(
