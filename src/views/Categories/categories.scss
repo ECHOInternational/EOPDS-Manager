@@ -1,0 +1,51 @@
+@import "node_modules/bootstrap/scss/_functions";
+@import "node_modules/bootstrap/scss/_variables";
+@import "node_modules/bootstrap/scss/mixins/_breakpoints";
+
+.card-grid{
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: stretch;
+	align-content: flex-start;
+	display: flex;
+}
+
+.card-grid-item{
+    margin: 0.25em;
+    max-width: 600px;
+    min-width: 200px;
+    @include media-breakpoint-between(xs, sm){
+    	width: 100%;
+    }
+
+    @include media-breakpoint-between(sm, md){
+    	width: 48%;
+    }
+
+    @include media-breakpoint-between(md, lg){
+    	width: 32%;
+    }
+
+    @include media-breakpoint-between(lg, xl){
+    	width: 32%;
+    }
+
+    @include media-breakpoint-up(xl) {
+    	width: 19%
+	}
+
+}
+
+// @include media-breakpoint-between(sm, md) {
+  // your code
+// }
+
+
+
+// name	minimum width (px)
+// xs	0
+// sm	576
+// md	768
+// lg	992
+// xl	1200

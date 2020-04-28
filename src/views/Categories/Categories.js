@@ -1,29 +1,24 @@
-import React from 'react';
-import { Card, CardHeader, Button, Badge, ListGroupItem, ListGroup,   Nav,
-  Navbar,
-  NavbarBrand,
-  NavbarToggler,
-  NavItem,
-  NavLink,
-  ButtonGroup,
-  Form,
-  Input,
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText
- } from 'reactstrap';
+import React, {useState} from 'react';
+import { ListGroupItem, ListGroup, Card, CardBody, Button } from 'reactstrap';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
+import ListControlNavbar from '../../components/ListControlNavbar';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import './categories.scss';
 
 const GET_CATEGORIES = gql`
-	{
-		categories{
-			totalCount
-	    nodes{
-	      id
-	      name
+	query Categories($cursor: String, $sortDirection: SortDirection){
+		categories(first: 4, after: $cursor, sortDirection: $sortDirection){
+		    edges{
+		   	  node {
+		        id
+		        name
+		      }
+		    }
+	    	pageInfo {
+	    		endCursor
+	    		hasNextPage
+	    	}
 	    }
-	  }
 	}
 `
 
@@ -36,7 +31,45 @@ const DELETE_CATEGORY = gql`
 `
 
 const Categories = (props) => {
-	const {loading, error, data } = useQuery(GET_CATEGORIES);
+	const [alphaSortDirection, setAlphaSortDirection] = useState('ASC');
+	const [listMode, setListMode] = useState('list');
+	const [searchText, setSearchText] = useState('');
+
+	const _onCategoryClick = (id) => {
+		props.history.push(`/categories/${id}`);
+	}
+
+	const _onAddCategoryClick = () => {
+		props.history.push('categories/new');
+	}
+
+	return(
+		<React.Fragment>
+			<ListControlNavbar
+				title="Plant Categories"
+				alphaSort={alphaSortDirection}
+				listMode={listMode}
+				addButtonText="Add Category"
+				onSetAlphaSort={setAlphaSortDirection}
+				onAddButtonClick={_onAddCategoryClick}
+				onSetMode={setListMode}
+				onSearchTextChange={setSearchText}
+				searchText={searchText}
+			/>
+			<CategoriesList
+				onClick={_onCategoryClick}
+				alphaSort={alphaSortDirection}
+				mode={listMode}
+			/>
+			
+		</React.Fragment>
+	);
+};
+
+
+const CategoriesList = (props) => {
+	const {loading, error, data, fetchMore } = useQuery(GET_CATEGORIES, {variables: {sortDirection: props.alphaSort}});
+
 	const [deleteCategory] = useMutation(
 		DELETE_CATEGORY,
 		{
@@ -58,108 +91,65 @@ const Categories = (props) => {
 	if (loading) return 'Loading...';
 	if (error) return `Error! ${error.message}`
 
-	const _onCategoryClick = (id) => {
-		props.history.push(`/categories/${id}`);
-	}
-
 	const _onCategoryDelete = (id) => {
 		deleteCategory({variables: {id}});
 	}
 
-	return(
-		<React.Fragment>
-			<ListControlNavbar
-				title="Plant Categories"
-				listSize={data.categories.totalCount}
-				alphaSort="up"
-				listMode="list"
-				addButtonText="Add Category"
-			/>
+	const onLoadMore = () => {
+        fetchMore({
+          variables: {
+            cursor: data.categories.pageInfo.endCursor
+          },
+          updateQuery: (previousResult, { fetchMoreResult }) => {
+            const newEdges = fetchMoreResult.categories.edges;
+            const pageInfo = fetchMoreResult.categories.pageInfo;
+            return newEdges.length
+              ? {
+                  // Put the new categories at the end of the list and update `pageInfo`
+                  // so we have the new `endCursor` and `hasNextPage` values
+                  categories: {
+                    __typename: previousResult.categories.__typename,
+                    edges: [...previousResult.categories.edges, ...newEdges],
+                    pageInfo
+                  }
+                }
+              : previousResult;
+          }
+        })
+      }
+
+	if(props.mode === 'grid'){
+		return (
+			<div className="card-grid">
+				{data.categories.edges.map((category, idx) => (
+					<CategoryCard
+						key={category.node.id}
+						id={category.node.id}
+						idx={idx}
+						name={category.node.name}
+						onClick={props.onClick}
+						onDelete={_onCategoryDelete}
+					/>
+				))}
+				<Button onClick={onLoadMore}>Load More.</Button>
+			</div>
+		)
+	}else{
+		return(
 			<ListGroup flush>
-				{data.categories.nodes.map(category => (
+				{data.categories.edges.map(category => (
 					<CategoryListGroupItem
-						key={category.id}
-						id={category.id}
-						name={category.name}
-						onClick={_onCategoryClick}
+						key={category.node.id}
+						id={category.node.id}
+						name={category.node.name}
+						onClick={props.onClick}
 						onDelete={_onCategoryDelete}
 					/>
 				))}
 			</ListGroup>
-		</React.Fragment>
-	);
-};
-
-const ListControlNavbar = (props) => {
-	const _setAlphaSort = (direction) => {
-		console.log(direction);
+		)
 	}
-
-	const _setListMode = (mode) => {
-		console.log(mode);
-	}
-
-	const _handleAddClick = () => {
-		console.log("Add Clicked");
-	}
-
-	return(
-		<Navbar light className="mb-4">
-			<NavbarBrand>{props.title} {props.listSize ? <Badge>{props.listSize}</Badge> : <span></span>}</NavbarBrand>
-			<Form inline style={{flex: "1 1 auto"}} className="mr-2">
-				<InputGroup style={{width: "100%"}} className="m-auto">
-					<InputGroupAddon addonType="prepend">
-						<InputGroupText>
-							<i className="fas fa-search"></i>
-						</InputGroupText>
-					</InputGroupAddon>
-					<Input type="search" name="search" id="listSearch" />
-				</InputGroup>
-			</Form>
-			<Nav>
-				<AlphaSortNavItem reverse={props.alphaSort === 'down'} className="mr-2" onChange={_setAlphaSort}/>
-				<ListModeNavItem grid={props.listMode === 'grid'} className="mr-2" onChange={_setListMode} />
-			</Nav>
-			<Nav navbar>
-			  
-			  <NavItem>
-			    <Button color="link" onClick={_handleAddClick}><i className="fas fa-plus"></i> {props.addButtonText}</Button>
-			  </NavItem>
-			</Nav>
-		</Navbar>
-	)
 }
-
-const AlphaSortNavItem = (props) => {
-	return(
-		<NavItem className={props.className}>
-			<ButtonGroup>
-				<Button active={!props.reverse} onClick={() => props.onChange('forward')}>
-					<i className="fas fa-sort-alpha-up"></i>
-				</Button>
-				<Button active={props.reverse} onClick={() => props.onChange('reverse')}>
-					<i className="fas fa-sort-alpha-down-alt"></i>
-				</Button>
-			</ButtonGroup>
-		</NavItem>
-	)
-}
-
-const ListModeNavItem = (props) => {
-	return(
-		<NavItem className={props.className}>
-			<ButtonGroup>
-			    <Button active={!props.grid} onClick={() => props.onChange('list')}>
-			    	<i className="fas fa-list"></i>
-			    </Button>
-			    <Button active={props.grid} onClick={() => props.onChange('grid')}>
-			    	<i className="fas fa-th"></i>
-			    </Button>
-			</ButtonGroup>
-		</NavItem>
-	)
-}
-
 
 const CategoryListGroupItem = (props) => {
 	return(
@@ -172,6 +162,22 @@ const CategoryListGroupItem = (props) => {
 		</ListGroupItem>
 	)
 }
+
+const CategoryCard = (props) =>{
+	return(
+		<Card className="card-grid-item" onClick={() => props.onClick(props.id) } style={{cursor: 'pointer'}}>
+			<img className="card-img-top" src="http://placehold.jp/600x360.png" alt=''/>
+			<CardBody>
+				<h5 className="card-title">{props.name}</h5>
+				<DeleteConfirmationModal
+					itemName={props.name}
+					onConfirmDelete={() => props.onDelete(props.id)}
+				/>
+			</CardBody>
+		</Card>
+	)
+}
+
 
 
 export default Categories;

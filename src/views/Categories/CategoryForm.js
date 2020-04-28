@@ -22,8 +22,7 @@ const CategoryForm = (props) => {
 	const [
 		updateCategory,
 		{
-			loading: formIsSaving,
-			error: saveError
+			loading: formIsSaving
 		}
 	] = useMutation(UPDATE_CATEGORY);
 
@@ -32,12 +31,12 @@ const CategoryForm = (props) => {
 		description: props.category.description
 	}
 
-	const { register, handleSubmit, errors, formState, reset, control, setValue } = useForm({
+	const { handleSubmit, errors, formState, reset, control, setValue } = useForm({
 		defaultValues,
 		mode: 'onChange'
 	});
 
-	const { dirty, dirtyFields, isSubmitting, isValid } = formState;
+	const { dirty, dirtyFields, isValid } = formState;
 
 	const onSubmit = data => {
 		updateCategory({
@@ -66,7 +65,6 @@ const CategoryForm = (props) => {
 	}
 
 	const _statusClass = ({error, dirty}) => {
-		console.log(error);
 		if(error){ return "card-accent-danger" };
 		if(dirty){ return "card-accent-success" };
 		return "";

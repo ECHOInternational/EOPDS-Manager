@@ -37,7 +37,7 @@ const RevisionCollapse = (props) => {
 }
 
 const CollapseButton = (props) => {
-	return <Button size="sm" color="link" onClick={props.onClick}><i class={`fa fa-${props.open ? "angle-double-up" : "angle-double-down"}`}></i></Button>
+	return <Button size="sm" color="link" onClick={props.onClick}><i className={`fa fa-${props.open ? "angle-double-up" : "angle-double-down"}`}></i></Button>
 }
 
 const RevisionItem = (props) => {
