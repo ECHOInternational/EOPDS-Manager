@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React from 'react';
+import useStickyState from '../../components/hooks/useStickyState';
 import { ListGroupItem, ListGroup, Card, CardBody, Button } from 'reactstrap';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
 import ListControlNavbar from '../../components/ListControlNavbar';
@@ -32,9 +33,9 @@ const DELETE_CATEGORY = gql`
 `
 
 const Categories = (props) => {
-	const [alphaSortDirection, setAlphaSortDirection] = useState('ASC');
-	const [listMode, setListMode] = useState('list');
-	const [searchText, setSearchText] = useState('');
+	const [alphaSortDirection, setAlphaSortDirection] = useStickyState('ASC', 'categoryListSort');
+	const [listMode, setListMode] = useStickyState('list', 'categoryListMode');
+	const [searchText, setSearchText] = useStickyState('', 'categoryListSearchText');
 
 	const _onCategoryClick = (id) => {
 		props.history.push(`/categories/${id}`);
@@ -121,12 +122,12 @@ const CategoriesList = (props) => {
 
 	if(props.mode === 'grid'){
 		return (
-			<InfiniteScroll
+				<InfiniteScroll
 					loadMore={onLoadMore}
 					hasMore={data.categories.pageInfo.hasNextPage}
 					loader={<p>Loading...</p>}
+					className="card-grid mb-4"
 				>
-				<div className="card-grid mb-4">
 						{data.categories.edges.map((category, idx) => (
 							<CategoryCard
 								key={category.node.id}
@@ -137,17 +138,17 @@ const CategoriesList = (props) => {
 								onDelete={_onCategoryDelete}
 							/>
 						))}
-				</div>
-			</InfiniteScroll>
+				</InfiniteScroll>
 		)
 	}else{
 		return(
-			<InfiniteScroll
+				<InfiniteScroll
 					loadMore={onLoadMore}
 					hasMore={data.categories.pageInfo.hasNextPage}
 					loader={<p>Loading...</p>}
+					className='mb-4 list-group list-group-flush'
+					element='ul'
 				>
-				<ListGroup flush className="mb-4">
 					{data.categories.edges.map(category => (
 						<CategoryListGroupItem
 							key={category.node.id}
@@ -157,8 +158,7 @@ const CategoriesList = (props) => {
 							onDelete={_onCategoryDelete}
 						/>
 					))}
-				</ListGroup>
-			</InfiniteScroll>
+				</InfiniteScroll>
 		)
 	}
 }
