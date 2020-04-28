@@ -13,7 +13,7 @@ import { Button, Badge,  Nav,
 
 const ListControlNavbar = (props) => {
 	const _handleSearchTextChange = (evt) => {
-		props.onSearchTextChange(evt.value);
+		props.onSearchTextChange(evt.target.value);
 	} 
 	return(
 		<Navbar light className="mb-4">

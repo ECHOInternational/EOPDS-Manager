@@ -12,7 +12,8 @@ import './categories.scss';
 
 const GET_CATEGORIES = gql`
 	query Categories($cursor: String, $sortDirection: SortDirection){
-		categories(first: 4, after: $cursor, sortDirection: $sortDirection) @connection(key: "all"){
+		categories(first: 4, after: $cursor, sortDirection: $sortDirection) @connection(key: "categories"){
+		    totalCount
 		    edges{
 		   	  node {
 		        id
@@ -79,19 +80,21 @@ const CategoriesList = (props) => {
 		DELETE_CATEGORY,
 		{
 			update(cache, { data: { deleteCategory } }) {
-				const { categories } = cache.readQuery({ query: GET_CATEGORIES});
+				const { categories } = cache.readQuery({ query: GET_CATEGORIES });
 				cache.writeQuery({
 					query: GET_CATEGORIES,
 					data: { categories:
 						{
 							totalCount: categories.totalCount - 1,
-							nodes: categories.nodes.filter((node) => node.id !== deleteCategory.categoryId)
+							edges: categories.edges.filter((edge) => edge.node.id !== deleteCategory.categoryId),
+							pageInfo: categories.pageInfo
 						}
 					},
 				});
 			}
 		}
 	);
+
 
 	if (loading && props.mode === 'grid') return <TileGridLoader />;
 	if (loading) return <ListItemLoader />;
@@ -110,6 +113,7 @@ const CategoriesList = (props) => {
           updateQuery: (previousResult, { fetchMoreResult }) => {
             const newEdges = fetchMoreResult.categories.edges;
             const pageInfo = fetchMoreResult.categories.pageInfo;
+            const totalCount = fetchMoreResult.categories.totalCount
             return newEdges.length
               ? {
                   // Put the new categories at the end of the list and update `pageInfo`
@@ -117,7 +121,8 @@ const CategoriesList = (props) => {
                   categories: {
                     __typename: previousResult.categories.__typename,
                     edges: [...previousResult.categories.edges, ...newEdges],
-                    pageInfo
+                    pageInfo,
+                    totalCount
                   }
                 }
               : previousResult;
@@ -130,14 +135,13 @@ const CategoriesList = (props) => {
 				<InfiniteScroll
 					loadMore={onLoadMore}
 					hasMore={data.categories.pageInfo.hasNextPage}
-					loader={<TileLoader key={0} className="tile-grid-item"/>}
+					loader={<TileLoader key={0}/>}
 					className="card-grid mb-4"
 				>
-						{data.categories.edges.map((category, idx) => (
+						{data.categories.edges.map(category => (
 							<CategoryCard
 								key={category.node.id}
 								id={category.node.id}
-								idx={idx}
 								name={category.node.name}
 								onClick={props.onClick}
 								onDelete={_onCategoryDelete}

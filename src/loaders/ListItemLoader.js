@@ -2,13 +2,6 @@ import React from "react"
 import ContentLoader from "react-content-loader" 
 
 const ListItemLoader = (props) => {
-
-    const speed = props.speed || 2;
-    const width = props.width || 300;
-    const height = props.height || 200;
-    const backgroundColor = props.backgroundColor || '#f3f3f3';
-    const foregroundColor = props.foregroundColor || '#ecebeb';
-
     return(
         <ContentLoader 
             speed={2}
