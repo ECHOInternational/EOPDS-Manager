@@ -12,6 +12,7 @@
 }
 
 .card-grid-item{
+    position: relative;
     margin: 0.25em;
     max-width: 600px;
     min-width: 200px;
@@ -34,6 +35,15 @@
     @include media-breakpoint-up(xl) {
     	width: 19%
 	}
+
+    .delete-button{
+        position: absolute;
+        top: .25em;
+        right: .25em;
+        .text {
+            display: none;
+        }
+    }
 
 }
 

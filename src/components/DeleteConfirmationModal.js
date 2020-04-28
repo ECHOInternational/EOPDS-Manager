@@ -21,14 +21,15 @@ const DeleteConfirmationModal = (props) => {
   }
 
   return (
-    <div>
+    <React.Fragment>
       <Button
       	size="sm"
 		color="danger"
 		outline
 		onClick={_handleClick}
+    className="delete-button"
 	  >
-		<i className="fa fa-trash"></i> Delete
+		<i className="fas fa-trash"></i><span className="text"> Delete</span>
 	  </Button>
       <Modal isOpen={modal} toggle={toggle} className="modal-danger">
         <ModalHeader toggle={toggle}>Are you sure?</ModalHeader>
@@ -40,7 +41,7 @@ const DeleteConfirmationModal = (props) => {
           <Button color="secondary" onClick={toggle}>Cancel</Button>
         </ModalFooter>
       </Modal>
-    </div>
+    </React.Fragment>
   );
 }
 

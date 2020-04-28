@@ -3,11 +3,12 @@ import { ListGroupItem, ListGroup, Card, CardBody, Button } from 'reactstrap';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
 import ListControlNavbar from '../../components/ListControlNavbar';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import InfiniteScroll from 'react-infinite-scroller';
 import './categories.scss';
 
 const GET_CATEGORIES = gql`
 	query Categories($cursor: String, $sortDirection: SortDirection){
-		categories(first: 4, after: $cursor, sortDirection: $sortDirection){
+		categories(first: 4, after: $cursor, sortDirection: $sortDirection) @connection(key: "all"){
 		    edges{
 		   	  node {
 		        id
@@ -120,33 +121,44 @@ const CategoriesList = (props) => {
 
 	if(props.mode === 'grid'){
 		return (
-			<div className="card-grid">
-				{data.categories.edges.map((category, idx) => (
-					<CategoryCard
-						key={category.node.id}
-						id={category.node.id}
-						idx={idx}
-						name={category.node.name}
-						onClick={props.onClick}
-						onDelete={_onCategoryDelete}
-					/>
-				))}
-				<Button onClick={onLoadMore}>Load More.</Button>
-			</div>
+			<InfiniteScroll
+					loadMore={onLoadMore}
+					hasMore={data.categories.pageInfo.hasNextPage}
+					loader={<p>Loading...</p>}
+				>
+				<div className="card-grid mb-4">
+						{data.categories.edges.map((category, idx) => (
+							<CategoryCard
+								key={category.node.id}
+								id={category.node.id}
+								idx={idx}
+								name={category.node.name}
+								onClick={props.onClick}
+								onDelete={_onCategoryDelete}
+							/>
+						))}
+				</div>
+			</InfiniteScroll>
 		)
 	}else{
 		return(
-			<ListGroup flush>
-				{data.categories.edges.map(category => (
-					<CategoryListGroupItem
-						key={category.node.id}
-						id={category.node.id}
-						name={category.node.name}
-						onClick={props.onClick}
-						onDelete={_onCategoryDelete}
-					/>
-				))}
-			</ListGroup>
+			<InfiniteScroll
+					loadMore={onLoadMore}
+					hasMore={data.categories.pageInfo.hasNextPage}
+					loader={<p>Loading...</p>}
+				>
+				<ListGroup flush className="mb-4">
+					{data.categories.edges.map(category => (
+						<CategoryListGroupItem
+							key={category.node.id}
+							id={category.node.id}
+							name={category.node.name}
+							onClick={props.onClick}
+							onDelete={_onCategoryDelete}
+						/>
+					))}
+				</ListGroup>
+			</InfiniteScroll>
 		)
 	}
 }
@@ -166,7 +178,7 @@ const CategoryListGroupItem = (props) => {
 const CategoryCard = (props) =>{
 	return(
 		<Card className="card-grid-item" onClick={() => props.onClick(props.id) } style={{cursor: 'pointer'}}>
-			<img className="card-img-top" src="http://placehold.jp/600x360.png" alt=''/>
+			<img className="card-img-top" src={`https://picsum.photos/seed/${props.id}/600/360`} alt=''/>
 			<CardBody>
 				<h5 className="card-title">{props.name}</h5>
 				<DeleteConfirmationModal
