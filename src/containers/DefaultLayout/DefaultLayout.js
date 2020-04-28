@@ -1,8 +1,11 @@
+  
 import React, { Component, Suspense } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import * as router from 'react-router-dom';
+import { gql, useQuery } from '@apollo/client';
 import { Container } from 'reactstrap';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import SideBarNavLoader from '../../loaders/SideBarNavLoader';
+
 import {
   // AppAside,
   AppFooter,
@@ -16,7 +19,7 @@ import {
   AppSidebarNav2 as AppSidebarNav,
 } from '@coreui/react';
 // sidebar nav config
-import navigation from '../../_nav';
+// import navigation from '../../_nav';
 // routes config
 import routes from '../../routes';
 
@@ -24,6 +27,72 @@ import routes from '../../routes';
 const DefaultFooter = React.lazy(() => import('./DefaultFooter'));
 const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
 
+class DefaultLayout extends Component {
+
+  loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
+
+  signOut(e) {
+    e.preventDefault()
+    this.props.history.push('/login')
+  }
+
+  render() {
+    return (
+      <div className="app">
+        <AppHeader fixed>
+          <Suspense  fallback={this.loading()}>
+            <DefaultHeader onLogout={e=>this.signOut(e)}/>
+          </Suspense>
+        </AppHeader>
+        <div className="app-body">
+          <AppSidebar fixed display="lg">
+            <AppSidebarHeader />
+            <AppSidebarForm />
+            <Suspense>
+              <AppSideBarNavWithItemCounts {...this.props} />
+            </Suspense>
+            <AppSidebarFooter />
+            <AppSidebarMinimizer />
+          </AppSidebar>
+          <main className="main">
+            <AppBreadcrumb appRoutes={routes} router={router}/>
+            <Container fluid>
+              <Suspense fallback={this.loading()}>
+                <Switch>
+                  {routes.map((route, idx) => {
+                    return route.component ? (
+                      <Route
+                        key={idx}
+                        path={route.path}
+                        exact={route.exact}
+                        name={route.name}
+                        render={props => (
+                          <route.component {...props} />
+                        )} />
+                    ) : (null);
+                  })}
+                  <Redirect from="/" to="/dashboard" />
+                </Switch>
+              </Suspense>
+            </Container>
+          </main>
+          {/*
+          <AppAside fixed>
+            <Suspense fallback={this.loading()}>
+              <DefaultAside />
+            </Suspense>
+          </AppAside>
+          */}
+        </div>
+        <AppFooter>
+          <Suspense fallback={this.loading()}>
+            <DefaultFooter />
+          </Suspense>
+        </AppFooter>
+      </div>
+    );
+  }
+}
 
 const GET_CATEGORIES = gql`
   {
@@ -33,23 +102,14 @@ const GET_CATEGORIES = gql`
   }
 `  
 
-const DefaultLayout = (props) => {
+const AppSideBarNavWithItemCounts = (props) => {
+   const {loading, error, data } = useQuery(GET_CATEGORIES);
 
-  const loadingIndc = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>;
-
-  const _signOut = (e) => {
-      e.preventDefault()
-      props.history.push('/login')
-    }
-
- 
-    const {loading, error, data } = useQuery(GET_CATEGORIES);
-
-    if (loading) return loadingIndc;
+    if (loading) return <SideBarNavLoader />;
     if (error) return `Error! ${error.message}`
 
 
-    const mynav = {
+    const navigation = {
       items: [
       {
         name: 'Dashboard',
@@ -119,61 +179,7 @@ const DefaultLayout = (props) => {
       ]
     }
 
-    return (
-      <div className="app">
-        
-        <AppHeader fixed>
-          <Suspense  fallback={loadingIndc}>
-            <DefaultHeader onLogout={_signOut}/>
-          </Suspense>
-        </AppHeader>
-        <div className="app-body">
-          <AppSidebar fixed display="lg">
-            <AppSidebarHeader />
-            <AppSidebarForm />
-            <Suspense>
-            <AppSidebarNav navConfig={mynav} {...props} router={router}/>
-            </Suspense>
-            <AppSidebarFooter />
-            <AppSidebarMinimizer />
-          </AppSidebar>
-          <main className="main">
-            <AppBreadcrumb appRoutes={routes} router={router}/>
-            <Container fluid>
-              <Suspense fallback={loadingIndc}>
-                <Switch>
-                  {routes.map((route, idx) => {
-                    return route.component ? (
-                      <Route
-                        key={idx}
-                        path={route.path}
-                        exact={route.exact}
-                        name={route.name}
-                        render={props => (
-                          <route.component {...props} />
-                        )} />
-                    ) : (null);
-                  })}
-                  <Redirect from="/" to="/dashboard" />
-                </Switch>
-              </Suspense>
-            </Container>
-          </main>
-          {/*
-          <AppAside fixed>
-            <Suspense fallback={this.loading()}>
-              <DefaultAside />
-            </Suspense>
-          </AppAside>
-          */}
-        </div>
-        <AppFooter>
-          <Suspense fallback={loadingIndc}>
-            <DefaultFooter />
-          </Suspense>
-        </AppFooter>
-      </div>
-    );
+  return <AppSidebarNav navConfig={navigation} {...props} router={router}/>
 }
 
 export default DefaultLayout;

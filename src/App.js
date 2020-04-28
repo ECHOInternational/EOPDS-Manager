@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { ApolloClient, HttpLink, InMemoryCache, ApolloProvider } from '@apollo/client';
 // import { renderRoutes } from 'react-router-config';
+import AppLoader from './loaders/AppLoader'
 import './App.scss';
-
-const loading = () => <div className="animated fadeIn pt-3 text-center">Loading...</div>;
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./containers/DefaultLayout'));
@@ -35,7 +34,7 @@ class App extends Component {
     return (
         <ApolloProvider client={client}>
           <HashRouter getUserConfirmation ={getUserConfirmation}>
-              <React.Suspense fallback={loading()}>
+              <React.Suspense fallback={<AppLoader />}>
                 <Switch>
                   <Route exact path="/login" name="Login Page" render={props => <Login {...props}/>} />
                   <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>} />

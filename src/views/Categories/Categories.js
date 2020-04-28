@@ -1,10 +1,13 @@
 import React from 'react';
 import useStickyState from '../../components/hooks/useStickyState';
-import { ListGroupItem, ListGroup, Card, CardBody, Button } from 'reactstrap';
+import { ListGroupItem, Card, CardBody } from 'reactstrap';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
 import ListControlNavbar from '../../components/ListControlNavbar';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import InfiniteScroll from 'react-infinite-scroller';
+import ListItemLoader from '../../loaders/ListItemLoader';
+import TileLoader from '../../loaders/TileLoader';
+import TileGridLoader from '../../loaders/TileGridLoader';
 import './categories.scss';
 
 const GET_CATEGORIES = gql`
@@ -90,7 +93,9 @@ const CategoriesList = (props) => {
 		}
 	);
 
-	if (loading) return 'Loading...';
+	if (loading && props.mode === 'grid') return <TileGridLoader />;
+	if (loading) return <ListItemLoader />;
+
 	if (error) return `Error! ${error.message}`
 
 	const _onCategoryDelete = (id) => {
@@ -125,7 +130,7 @@ const CategoriesList = (props) => {
 				<InfiniteScroll
 					loadMore={onLoadMore}
 					hasMore={data.categories.pageInfo.hasNextPage}
-					loader={<p>Loading...</p>}
+					loader={<TileLoader key={0} className="tile-grid-item"/>}
 					className="card-grid mb-4"
 				>
 						{data.categories.edges.map((category, idx) => (
@@ -145,7 +150,7 @@ const CategoriesList = (props) => {
 				<InfiniteScroll
 					loadMore={onLoadMore}
 					hasMore={data.categories.pageInfo.hasNextPage}
-					loader={<p>Loading...</p>}
+					loader={<ListItemLoader key={0} />}
 					className='mb-4 list-group list-group-flush'
 					element='ul'
 				>
