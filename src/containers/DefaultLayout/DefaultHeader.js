@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 // import { Link, NavLink } from 'react-router-dom';
 // import { Badge, UncontrolledDropdown, DropdownItem, DropdownMenu, DropdownToggle, Nav, NavItem } from 'reactstrap';
-import { UncontrolledDropdown, DropdownItem, DropdownMenu, DropdownToggle, Nav } from 'reactstrap';
+import { UncontrolledDropdown, DropdownItem, DropdownMenu, DropdownToggle, Nav, Badge } from 'reactstrap';
 import PropTypes from 'prop-types';
-
+import AppLanguageChooser from '../../components/AppLanguageChooser';
 // import { AppAsideToggler, AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
 import { AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
 import logo from '../../assets/img/brand/logo.svg'
@@ -54,7 +54,7 @@ class DefaultHeader extends Component {
             <NavLink to="#" className="nav-link"><i className="icon-location-pin"></i></NavLink>
           </NavItem>
         */}
-
+          <AppLanguageChooser />
           <UncontrolledDropdown nav direction="down">
             <DropdownToggle nav>
               <img src={'../../assets/img/avatars/6.jpg'} className="img-avatar" alt="admin@bootstrapmaster.com" />

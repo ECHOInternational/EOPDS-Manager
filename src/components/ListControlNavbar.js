@@ -16,7 +16,7 @@ const ListControlNavbar = (props) => {
 		props.onSearchTextChange(evt.target.value);
 	} 
 	return(
-		<Navbar light className="mb-4">
+		<Navbar light className="mb-4 animate fade-in">
 			<NavbarBrand>{props.title} {props.listSize ? <Badge>{props.listSize}</Badge> : <span></span>}</NavbarBrand>
 			<Form inline style={{flex: "1 1 auto"}} className="mr-2">
 				<InputGroup style={{width: "100%"}} className="m-auto">

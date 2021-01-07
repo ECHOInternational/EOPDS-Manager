@@ -1,10 +1,11 @@
-  
 import React, { Component, Suspense } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import * as router from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import { Container } from 'reactstrap';
-import SideBarNavLoader from '../../loaders/SideBarNavLoader';
+import { useTranslation } from 'react-i18next';
+import AppSideBarNavWithItemCounts from './AppSideBarNavWithItemCounts';
+
 
 import {
   // AppAside,
@@ -21,11 +22,26 @@ import {
 // sidebar nav config
 // import navigation from '../../_nav';
 // routes config
-import routes from '../../routes';
+// import routes from '../../routes';
 
 // const DefaultAside = React.lazy(() => import('./DefaultAside'));
 const DefaultFooter = React.lazy(() => import('./DefaultFooter'));
 const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
+
+const Dashboard = React.lazy(() => import('../../views/Dashboard'));
+const Users = React.lazy(() => import('../../views/Users/Users'));
+const User = React.lazy(() => import('../../views/Users/User'));
+const Categories = React.lazy(() => import('../../views/Categories/Categories'));
+const Category = React.lazy(() => import('../../views/Categories/Category'));
+const Plants = React.lazy(() => import('../../views/Plants/Plants'));
+const Plant = React.lazy(() => import('../../views/Plants/Plant'));
+const Varieties = React.lazy(() => import('../../views/Varieties/Varieties'));
+const Variety = React.lazy(() => import('../../views/Varieties/Variety'));
+const Antinutrients = React.lazy(() => import('../../views/Attributes/Antinutrients'));
+const GrowthHabits = React.lazy(() => import('../../views/Attributes/GrowthHabits'));
+const Tolerances = React.lazy(() => import('../../views/Attributes/Tolerances'));
+const KoClimateZones = React.lazy(() => import('../../views/Attributes/KoClimateZones'));
+
 
 class DefaultLayout extends Component {
 
@@ -37,6 +53,22 @@ class DefaultLayout extends Component {
   }
 
   render() {
+    const routes = [
+      { path: '/', exact: true, name: 'Home' },
+      { path: '/dashboard', exact: true, name: 'Dashboard', component: Dashboard},
+      { path: '/categories', exact: true, name: 'Categories', component: Categories },
+      { path: '/categories/:id', name: 'Category', component: Category },
+      { path: '/plants', exact: true, name: 'Plants', component: Plants },
+      { path: '/plants/:id', name: 'Plant', component: Plant },
+      { path: '/varieties', exact: true, name: 'Varieties', component: Varieties },
+      { path: '/variety/:id', name: 'Variety', component: Variety },
+      { path: '/attributes/antinutrients', name: 'Antinutrients', component: Antinutrients },
+      { path: '/attributes/growth-habits', name: 'Growth Habits', component: GrowthHabits },
+      { path: '/attributes/tolerances', name: 'Tolerances', component: Tolerances },
+      { path: '/attributes/koppen-climate-zones', name: 'Köppen Climate Zones', component: KoClimateZones },
+      { path: '/users', exact: true,  name: 'Users', component: Users },
+      { path: '/users/:id', exact: true, name: 'User Details', component: User },
+    ];
     return (
       <div className="app">
         <AppHeader fixed>
@@ -92,94 +124,6 @@ class DefaultLayout extends Component {
       </div>
     );
   }
-}
-
-const GET_CATEGORIES = gql`
-  {
-    categories{
-      totalCount
-    }
-  }
-`  
-
-const AppSideBarNavWithItemCounts = (props) => {
-   const {loading, error, data } = useQuery(GET_CATEGORIES);
-
-    if (loading) return <SideBarNavLoader />;
-    if (error) return `Error! ${error.message}`
-
-
-    const navigation = {
-      items: [
-      {
-        name: 'Dashboard',
-        url: '/dashboard',
-        icon: 'far fa-tachometer-alt',
-      },
-      {
-        title: true,
-        name: 'Plant Data',
-      },
-      {
-        name: "Categories",
-        url: '/categories',
-        icon: 'fad fa-folder-tree',
-        badge: {
-          variant: 'secondary',
-          text: `${data.categories.totalCount}`,
-        },
-      },
-      {
-        name: "Plants",
-        url: '/plants',
-        icon: 'fad fa-trees',
-         badge: {
-          variant: 'secondary',
-          text: 'XXX',
-        },
-      },
-      {
-        name: "Varieties",
-        url: '/varieties',
-        icon: 'fad fa-seedling',
-        badge: {
-          variant: 'secondary',
-          text: 'XXXX',
-        },
-      },
-      {
-        title: true,
-        name: 'Plant Attributes',
-      },
-      {
-        name: "Antinutrients",
-        url: '/attributes/antinutrients',
-        icon: 'icon-shield'
-      },
-      {
-        name: "Growth Habits",
-        url: '/attributes/growth-habits',
-        icon: 'icon-chart'
-      },
-      {
-        name: "Tolerances",
-        url: '/attributes/tolerances',
-        icon: 'icon-directions'
-      },
-      {
-        name: 'Climate Zones',
-        icon: 'icon-map',
-        children: [
-          {
-            name: "Köppen",
-            url: '/attributes/koppen-climate-zones',
-          },
-        ]
-      },
-      ]
-    }
-
-  return <AppSidebarNav navConfig={navigation} {...props} router={router}/>
 }
 
 export default DefaultLayout;

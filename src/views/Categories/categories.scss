@@ -2,6 +2,15 @@
 @import "node_modules/bootstrap/scss/_variables";
 @import "node_modules/bootstrap/scss/mixins/_breakpoints";
 
+.delete-button {
+    .text{
+        @include media-breakpoint-between(xs, sm){
+            display: none;
+        }
+    }
+}
+
+
 .card-grid{
 	flex-direction: row;
 	flex-wrap: wrap;
