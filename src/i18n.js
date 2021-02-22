@@ -22,8 +22,8 @@ i18n
     debug: true,
     saveMissing: true,
     backend: {
-      projectId: '8a959e7c-9cdf-4310-8ad2-d6ff4b62f904',
-      apiKey: '09daecc7-5f25-435b-aea7-776da08703cc',
+      projectId: 'e4cbad29-050c-45a0-aa41-852999547e7d',
+      apiKey: 'b7b1cac2-04a5-4b16-a1eb-de8e4782ec04',
       referenceLng: 'en',
       allowedAddOrUpdateHosts: ['localhost', 'localhost:3001'],
       saveMissing: true,

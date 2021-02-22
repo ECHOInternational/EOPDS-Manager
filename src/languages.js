@@ -70,8 +70,3 @@ export const languages = [
 			},
 		},
 	];
-
-export function languageInLocale(language){
-	const lang =  languages.find(l => l.id === language);
-	return lang[language];
-}

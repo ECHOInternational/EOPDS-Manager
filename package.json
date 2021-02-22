@@ -36,7 +36,7 @@
     "flag-icon-css": "^3.3.0",
     "graphql": "^14.6.0",
     "i18next": "^19.4.4",
-    "i18next-browser-languagedetector": "^4.1.1",
+    "i18next-browser-languagedetector": "^4.3.1",
     "i18next-http-backend": "^1.0.8",
     "i18next-locize-backend": "^4.0.7",
     "i18next-parser": "^1.0.6",

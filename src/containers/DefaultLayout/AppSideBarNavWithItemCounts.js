@@ -5,9 +5,18 @@ import SideBarNavLoader from '../../loaders/SideBarNavLoader';
 import * as router from 'react-router-dom';
 import { AppSidebarNav2 as AppSidebarNav } from '@coreui/react';
 
-const GET_CATEGORIES = gql`
-  {
+const GET_COUNTS = gql`
+  query ItemCounts{
     categories{
+      totalCount
+    },
+    plants{
+      totalCount
+    },
+    varieties{
+      totalCount
+    },
+    locations{
       totalCount
     }
   }
@@ -15,7 +24,7 @@ const GET_CATEGORIES = gql`
 
 const AppSideBarNavWithItemCounts = (props) => {
    const { t } = useTranslation('navigation');
-   const {loading, error, data } = useQuery(GET_CATEGORIES);
+   const {loading, error, data } = useQuery(GET_COUNTS);
 
     if (loading) return <SideBarNavLoader />;
     if (error) return `Error! ${error.message}`
@@ -47,7 +56,7 @@ const AppSideBarNavWithItemCounts = (props) => {
         icon: 'fad fa-trees',
          badge: {
           variant: 'secondary',
-          text: '0',
+          text: `${data.plants.totalCount}`,
         },
       },
       {
@@ -56,7 +65,7 @@ const AppSideBarNavWithItemCounts = (props) => {
         icon: 'fad fa-seedling',
         badge: {
           variant: 'secondary',
-          text: '0',
+          text: `${data.varieties.totalCount}`,
         },
       },
       {

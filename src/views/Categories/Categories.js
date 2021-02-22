@@ -8,12 +8,14 @@ import InfiniteScroll from 'react-infinite-scroller';
 import ListItemLoader from '../../loaders/ListItemLoader';
 import TileLoader from '../../loaders/TileLoader';
 import TileGridLoader from '../../loaders/TileGridLoader';
-import { useTranslation } from 'react-i18next';
+import { useReactiveVar } from '@apollo/client';
+import { userCurrentLanguage } from '../../cache';
+
 import './categories.scss';
 
 const GET_CATEGORIES = gql`
-	query Categories($cursor: String, $sortDirection: SortDirection, $name: String, $language: String){
-		categories(first: 4, after: $cursor, sortDirection: $sortDirection, name: $name, language: $language) @connection(key: "categories"){
+	query Categories($afterCursor: String, $sortDirection: SortDirection, $name: String, $language: String){
+		categories(first: 4, after: $afterCursor, sortDirection: $sortDirection, name: $name, language: $language) @connection(key: "categories"){
 		    totalCount
 		    edges{
 		   	  node {
@@ -38,11 +40,11 @@ const DELETE_CATEGORY = gql`
 `
 
 const Categories = (props) => {
+	const language = useReactiveVar(userCurrentLanguage);
+
 	const [alphaSortDirection, setAlphaSortDirection] = useStickyState('ASC', 'categoryListSort');
 	const [listMode, setListMode] = useStickyState('list', 'categoryListMode');
 	const [searchText, setSearchText] = useStickyState('', 'categoryListSearchText');
-
-	const { i18n } = useTranslation('languages');
 
 	const _onCategoryClick = (id) => {
 		props.history.push(`/categories/${id}`);
@@ -70,7 +72,7 @@ const Categories = (props) => {
 				alphaSort={alphaSortDirection}
 				mode={listMode}
 				name={searchText}
-				language={i18n.language}
+				language={language}
 			/>
 			
 		</React.Fragment>
@@ -80,14 +82,13 @@ const Categories = (props) => {
 
 const CategoriesList = (props) => {
 
-	// console.log(currentLanguage);
 	const {loading, error, data, fetchMore } = useQuery(
 		GET_CATEGORIES,
 		{
 			variables: {
 				sortDirection: props.alphaSort,
 				name: props.name,
-				language: props.language
+				language: props.language,
 			},
 			fetchPolicy: 'network-only',
 			context: {
@@ -127,29 +128,12 @@ const CategoriesList = (props) => {
 	}
 
 	const onLoadMore = () => {
-        fetchMore({
+		fetchMore({
           variables: {
-            cursor: data.categories.pageInfo.endCursor
-          },
-          updateQuery: (previousResult, { fetchMoreResult }) => {
-            const newEdges = fetchMoreResult.categories.edges;
-            const pageInfo = fetchMoreResult.categories.pageInfo;
-            const totalCount = fetchMoreResult.categories.totalCount
-            return newEdges.length
-              ? {
-                  // Put the new categories at the end of the list and update `pageInfo`
-                  // so we have the new `endCursor` and `hasNextPage` values
-                  categories: {
-                    __typename: previousResult.categories.__typename,
-                    edges: [...previousResult.categories.edges, ...newEdges],
-                    pageInfo,
-                    totalCount
-                  }
-                }
-              : previousResult;
+            afterCursor: data.categories.pageInfo.endCursor
           }
-        })
-      }
+    })
+	}
 
 	if(props.mode === 'grid'){
 		return (

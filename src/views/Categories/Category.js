@@ -1,52 +1,57 @@
 import React, {useState} from 'react';
-// import { Card, CardBody, CardHeader, Col, Row} from 'reactstrap';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useReactiveVar } from '@apollo/client';
+import { TabContent, Nav, NavItem, NavLink, TabPane, Row, Col } from 'reactstrap';
+import classnames from 'classnames';
 import CategoryForm from './CategoryForm';
+import PlantList from './PlantList'
+import { userCurrentLanguage } from '../../cache';
 
 const GET_CATEGORY = gql`
-  query Category($id: ID!, $language: String) {
+  query Category($id: ID!, $language: String, $afterCursor: String) {
     category(id: $id, language: $language) {
-		id
-		name
-		description
-		createdBy
-		translations {
 			id
-			locale
 			name
 			description
-		}
-		versions{
-			totalCount
-			nodes{
-				id
-				date
-				user
+			createdBy
+			translations {
+				locale
 				name
 				description
 			}
+			plants(first: 4, after: $afterCursor){
+				totalCount
+				edges{
+					node{
+						id
+						primaryCommonName
+						scientificName
+					}
+				}
+			}
 		}
-    }
   }
 `
 
-const GET_USER_LANGUAGE = gql`
-  {
-    userLanguage @client
-  }
-`;
-
 const Category = (props) => {
-	
+	const language = useReactiveVar(userCurrentLanguage);
+
 	const [userCanEdit, setUserCanEdit] = useState(false);
 
 	const {match: {params} } = props;
 	const {id} = params;
 
-	const { data : { userLanguage }, } = useQuery(GET_USER_LANGUAGE);
+	const [activeTab, setActiveTab] = useState('edit');
+
+	const toggle = tab => {
+		if(activeTab !== tab) setActiveTab(tab);
+	}
 
 	const { loading, error, data } = useQuery(GET_CATEGORY, {
-		variables: { id, language: userLanguage },
+		variables: {
+			id,
+			language: language,
+		},
+		fetchPolicy: 'network-only',
 		onCompleted: (data) => {
 			setUserCanEdit(true); //TODO! This needs to check if user can edit. 
 		},
@@ -57,10 +62,62 @@ const Category = (props) => {
 	if (!data) return 'Category Not Found.'
 
 	return (
-		<CategoryForm
-			category={data.category}
-			allowEdit={userCanEdit}
-		/>
+		<div>
+		<Nav tabs>
+			<NavItem>
+				<NavLink
+					className={classnames({active: activeTab === 'edit'})}
+					onClick={() => { toggle('edit');}}
+				>
+					View/Edit
+				</NavLink>
+			</NavItem>
+			<NavItem>
+				<NavLink
+					className={classnames({active: activeTab === 'translate'})}
+					onClick={() => { toggle('translate');}}
+				>
+					Translate
+				</NavLink>
+			</NavItem>
+			<NavItem>
+				<NavLink
+					className={classnames({active: activeTab === 'plants'})}
+					onClick={() => { toggle('plants');}}
+				>
+					Plants
+				</NavLink>
+			</NavItem>
+			<NavItem>
+				<NavLink
+					className={classnames({active: activeTab === 'pictures'})}
+					onClick={() => { toggle('pictures');}}
+				>
+					Pictures
+				</NavLink>
+			</NavItem>
+		</Nav>
+		<TabContent activeTab={activeTab}>
+			<TabPane tabId='edit'>
+				<CategoryForm
+					category={data.category}
+					allowEdit={userCanEdit}
+				/>
+			</TabPane>
+			<TabPane tabId='translate'>
+				Put translations here.
+			</TabPane>
+			<TabPane tabId='plants'>
+				<PlantList
+					count={data.category.plants.totalCount}
+					plants={data.category.plants.edges}
+				/>
+			</TabPane>
+			<TabPane tabId='pictures'>
+				put pictures here.
+			</TabPane>
+		</TabContent>
+		</div>
 	);
 }
 

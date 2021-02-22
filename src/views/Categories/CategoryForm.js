@@ -3,17 +3,18 @@ import { Card, CardBody, CardHeader, CardFooter, Col, Row } from 'reactstrap';
 import { SaveButton, RevertButton } from '../../components/FormActionButtons';
 import EditableTextField from '../../components/EditableTextField';
 import WysiwygCard from '../../components/WysiwygCard';
-import RevisionCollapse from '../../components/RevisionCollapse';
 import { gql, useMutation } from '@apollo/client';
 import { useForm, Controller } from 'react-hook-form'
 import PreventTransitionPrompt from "../../components/PreventTransitionPrompt";
 
 const UPDATE_CATEGORY = gql`
-	mutation UpdateCategory($id: ID!, $name: String, $description: String, $language: String){
-		updateCategory(categoryId: $id, name: $name, description: $description, language: $language){
-			id
-			name
-			description
+	mutation UpdateCategory($input: UpdateCategoryInput!){
+		updateCategory(input: $input){
+			category{
+				id
+				name
+				description
+			}
 		}
 	}
 `
@@ -22,7 +23,8 @@ const CategoryForm = (props) => {
 	const [
 		updateCategory,
 		{
-			loading: formIsSaving
+			loading: formIsSaving,
+			error: mutationError
 		}
 	] = useMutation(UPDATE_CATEGORY);
 
@@ -39,29 +41,24 @@ const CategoryForm = (props) => {
 	const { dirty, dirtyFields, isValid } = formState;
 
 	const onSubmit = data => {
-		updateCategory({
-			variables: {
-				id: props.category.id,
-				name: data.name,
-				description: data.description,
-			}
-		});
-		reset(data);
+			updateCategory({
+				variables: {
+					input:{
+						categoryId: props.category.id,
+						name: data.name,
+						description: data.description
+					}
+				}
+			}).catch((res) => {
+				console.log("Error was here.")
+			}).then((res) => {
+				reset(data);
+			});
 	}
 
-	let [currentRevision, setCurrentRevision] = useState('');
-
-	const _loadRevision = (revision) => {
-		setCurrentRevision(revision.id);
-		setValue([
-			{name: revision.name},
-			{description: revision.description}
-		]);
-	}
 
 	const _revert = () => {
 		reset(defaultValues);
-		setCurrentRevision('');
 	}
 
 	const _statusClass = ({error, dirty}) => {
@@ -69,6 +66,8 @@ const CategoryForm = (props) => {
 		if(dirty){ return "card-accent-success" };
 		return "";
 	}
+
+
 
 	return(
 		<form>
@@ -78,6 +77,8 @@ const CategoryForm = (props) => {
 	          message={`Do you want to save the changes made to "${props.category.name}"?`}
 	          onSave={handleSubmit(onSubmit)}
 	        />
+			<Card>
+				<CardBody>
 			<Row>
 				<Col xs="12">
 					<Card className={_statusClass({error: errors.name, dirty: dirtyFields.has("name")})}>
@@ -121,7 +122,7 @@ const CategoryForm = (props) => {
 							<SaveButton isNew={false} hasChanges={dirty} canSave={isValid} saving={formIsSaving} onClick={handleSubmit(onSubmit)}/>		
 							<RevertButton hasChanges={dirty} onClick={_revert}/>
 						</CardBody>
-							<RevisionCollapse revisions={props.category.versions} onSelect={_loadRevision} selected={currentRevision}/>
+							{/* <RevisionCollapse revisions={props.category.versions} onSelect={_loadRevision} selected={currentRevision}/> */}
 
 						<CardFooter>
 							Owner: {props.category.createdBy}
@@ -129,7 +130,9 @@ const CategoryForm = (props) => {
 					</Card>
 				</Col>
 			</Row>
+			</CardBody>
+			</Card>
 		</form>
 	)
-}
+						}
 export default CategoryForm;

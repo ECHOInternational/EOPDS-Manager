@@ -1,11 +1,9 @@
 import React, { Component, Suspense } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import * as router from 'react-router-dom';
-import { gql, useQuery } from '@apollo/client';
 import { Container } from 'reactstrap';
-import { useTranslation } from 'react-i18next';
 import AppSideBarNavWithItemCounts from './AppSideBarNavWithItemCounts';
-
+import AppErrorBar from '../../components/AppErrorBar'
 
 import {
   // AppAside,
@@ -46,7 +44,7 @@ const KoClimateZones = React.lazy(() => import('../../views/Attributes/KoClimate
 class DefaultLayout extends Component {
 
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
-
+  
   signOut(e) {
     e.preventDefault()
     this.props.history.push('/login')
@@ -87,6 +85,7 @@ class DefaultLayout extends Component {
             <AppSidebarMinimizer />
           </AppSidebar>
           <main className="main">
+            <AppErrorBar />
             <AppBreadcrumb appRoutes={routes} router={router}/>
             <Container fluid>
               <Suspense fallback={this.loading()}>

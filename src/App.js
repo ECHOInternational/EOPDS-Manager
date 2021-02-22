@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom';
-import { ApolloClient, HttpLink, InMemoryCache, ApolloProvider, ApolloLink, gql } from '@apollo/client';
+import { ApolloClient, HttpLink, ApolloProvider, ApolloLink, gql } from '@apollo/client';
+import { onError } from "@apollo/client/link/error";
+import { Observable } from 'apollo-link';
 import { setContext } from 'apollo-link-context';
 import DebounceLink from 'apollo-link-debounce';
 // import { renderRoutes } from 'react-router-config';
 import AppLoader from './loaders/AppLoader'
+import { cache, userCurrentLanguage, appErrorMessages } from './cache';
+import i18n from 'i18next';
 import './App.scss';
 
 // Containers
@@ -17,51 +21,67 @@ const Page404 = React.lazy(() => import('./views/Pages/Page404'));
 const Page500 = React.lazy(() => import('./views/Pages/Page500'));
 
 const httpLink = new HttpLink({
-  uri: 'http://localhost:3000/graphql'
+  // uri: 'https://plant-api.echocommunity.org/graphql'
+  uri: 'http://development.echocommunity.org:3000/graphql'
 });
 
-const cache = new InMemoryCache();
 
 const debounceLink = new DebounceLink(100);
 
 // Adds an accept_language header based on a local state variable
-//Left here as an example
-// const userLanguageLink = setContext((request, previousContext) => {
-//   const headers = previousContext.headers;
+const userLanguageLink = setContext((request, previousContext) => {
+  const headers = previousContext.headers;
 
-//   const { userLanguage } = client.readQuery({
-//       query: gql`
-//         {
-//           userLanguage @client
-//         }
-//        `
-//     });
-//   return {
-//     headers: {
-//       ...headers,
-//       accept_language: userLanguage,
-//     }
-//   }
-// });
+  const userLanguage = userCurrentLanguage.id || i18n.language
 
-// const link = ApolloLink.from([userLanguageLink, debounceLink, httpLink])
-const link = ApolloLink.from([debounceLink, httpLink])
+  return {
+    headers: {
+      ...headers,
+      accept_language: userLanguage,
+    }
+  }
+});
+
+
+// This is how we redirect for people who are not logged in
+// We can catch exprired credentials here and update them before we throw an error at the user
+// This does not prevent errors from propagating to the item that called them.
+// They can be handled on a case-by-case bases with try-catch.
+const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+  if (graphQLErrors) {
+    graphQLErrors.forEach(({ message, extensions }) => {
+      var error_message = ''
+      switch(extensions.code) {
+        case 403:
+          error_message = `The user is unauthorized: ${message}`
+          break;
+        case 404:
+          error_message = `The item is not found: ${message}`
+          break;
+        default:
+          error_message = `[Unhandled GraphQL error]: Message: ${message}`
+      }
+      console.log(error_message)
+      appErrorMessages([...appErrorMessages(), error_message])
+      // return Observable.of(operation);
+    });
+  }
+
+  if (networkError) {
+    console.log(`[Network error]: ${networkError.message}`)
+    // return Observable.of(operation)
+  }
+
+  return forward(operation);
+});
+
+const link = ApolloLink.from([userLanguageLink, debounceLink, errorLink, httpLink])
+// const link = ApolloLink.from([debounceLink, httpLink])
 
 const client = new ApolloClient({
   cache,
-  link
-});
-
-// Set defaults in local state
-cache.writeQuery({
-  query: gql`
-    query {
-      userLanguage
-    }
-  `,
-  data: {
-    userLanguage: "es",
-  }
+  link,
+  connectToDevTools: true,
 });
 
 // Reuseable modal for confirming record deletes.
