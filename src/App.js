@@ -55,10 +55,9 @@ const userLanguageLink = setContext((request, previousContext) => {
 
 const asyncAuthLink = setContext(async (_, {headers}) => {
   const user = (await userManager.getUser())
-  console.log(user);
-  debugger;
-  const token = undefined
+  if(!user) return;
 
+  const token = user.access_token
   if(!token) return;
   
   return{
