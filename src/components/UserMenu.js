@@ -1,24 +1,31 @@
 import React from 'react';
-import { UncontrolledDropdown, DropdownItem, DropdownMenu, DropdownToggle, Button } from 'reactstrap';
-import { useReactiveVar } from '@apollo/client';
-import { currentUser } from '../cache'
+import { UncontrolledDropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import LoginButton from './LoginButton'
+import { useAuth } from 'oidc-react'
 
 const UserMenu = (props) =>{
-  const userData = useReactiveVar(currentUser);
+  const auth = useAuth();
 
-  if(userData === undefined){
-    return(<LoginButton />)
+  const handleLogin = () => {
+    auth.signIn()
   }
 
+  const handleLogout = () => {
+    auth.signOut()
+  }
+
+  if(!auth.userData){
+    return(<LoginButton onClick={handleLogin} />)
+  }
+  
   return (
     <UncontrolledDropdown nav direction="down">
       <DropdownToggle nav>
-        <img src={userData.avatar} className="img-avatar" alt={userData.email} />
+        <img src={auth.userData.profile.picture} className="img-avatar" alt={auth.userData.profile.nickname} />
       </DropdownToggle>
       <DropdownMenu right>
         
-        <DropdownItem header tag="div" className="text-center"><strong>{userData.name}</strong></DropdownItem>
+        <DropdownItem header tag="div" className="text-center"><strong>{auth.userData.profile.nickname}</strong></DropdownItem>
         {/* <DropdownItem><i className="fa fa-bell-o"></i> Updates<Badge color="info">42</Badge></DropdownItem>
         <DropdownItem><i className="fa fa-envelope-o"></i> Messages<Badge color="success">42</Badge></DropdownItem>
         <DropdownItem><i className="fa fa-tasks"></i> Tasks<Badge color="danger">42</Badge></DropdownItem>
@@ -31,7 +38,7 @@ const UserMenu = (props) =>{
         <DropdownItem divider />
         <DropdownItem><i className="fa fa-shield"></i> Lock Account</DropdownItem> */}
     
-        <DropdownItem onClick={e => this.props.onLogout(e)}><i className="fa fa-lock"></i> Logout</DropdownItem>
+        <DropdownItem onClick={handleLogout}><i className="fa fa-lock"></i> Logout</DropdownItem>
       </DropdownMenu>
     </UncontrolledDropdown>
   )

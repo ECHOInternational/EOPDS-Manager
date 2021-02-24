@@ -4,7 +4,6 @@ import i18n from 'i18next';
 
 export const userCurrentLanguage = makeVar(i18n.language);
 export const appErrorMessages = makeVar([]);
-export const currentUser = makeVar(undefined);
 
 export const cache = new InMemoryCache({
   typePolicies: {
