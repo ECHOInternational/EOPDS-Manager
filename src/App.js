@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { ApolloClient, HttpLink, ApolloProvider, ApolloLink } from '@apollo/client';
 import { onError } from "@apollo/client/link/error";
@@ -15,8 +15,6 @@ import './App.scss';
 const DefaultLayout = React.lazy(() => import('./containers/DefaultLayout'));
 
 // Pages
-const Login = React.lazy(() => import('./views/Pages/Login'));
-const Register = React.lazy(() => import('./views/Pages/Register'));
 const Page404 = React.lazy(() => import('./views/Pages/Page404'));
 const Page500 = React.lazy(() => import('./views/Pages/Page500'));
 
@@ -110,37 +108,43 @@ const client = new ApolloClient({
   connectToDevTools: true,
 });
 
-// Reuseable modal for confirming record deletes.
-const getUserConfirmation = (dialogKey, callback) => {
-  const dialogTrigger = window[Symbol.for(dialogKey)];
-  if (dialogTrigger) {
-    return dialogTrigger(callback);
+const App = (props) =>{
+
+  const handleUserLogin = (user) => {
+    const destination = localStorage.getItem('redirect_destination') || '/'
+    window.location.replace(destination)
   }
-  callback(true);
-}
+  
+  const handleUserSignOut = () => {
+    client.resetStore()
+  }
 
+  // Reuseable modal for confirming record deletes.
+  const getUserConfirmation = (dialogKey, callback) => {
+    const dialogTrigger = window[Symbol.for(dialogKey)];
+    if (dialogTrigger) {
+      return dialogTrigger(callback);
+    }
+    callback(true);
+  }
 
-
-class App extends Component {
-  render() {
     return (
-      <AuthProvider userManager={userManager} autoSignIn={false} >
+      <AuthProvider userManager={userManager} autoSignIn={false} onSignIn={handleUserLogin} onSignOut={handleUserSignOut} >
         <ApolloProvider client={client}>
-          <HashRouter getUserConfirmation ={getUserConfirmation}>
+          <HashRouter getUserConfirmation={getUserConfirmation}>
               <React.Suspense fallback={<AppLoader />}>
                   <Switch>
-                    <Route exact path="/login" name="Login Page" render={props => <Login {...props}/>} />
-                    <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>} />
                     <Route exact path="/404" name="Page 404" render={props => <Page404 {...props}/>} />
                     <Route exact path="/500" name="Page 500" render={props => <Page500 {...props}/>} />
-                    <Route path="/" name="Home" render={props => <DefaultLayout {...props}/>} />
+                    <Route path="/" name="Home" render={ (props) => {
+                      return(<DefaultLayout {...props}/>)
+                    }} />
                   </Switch>
               </React.Suspense>
           </HashRouter>
         </ApolloProvider>
       </AuthProvider>
     );
-  }
 }
 
 export default App;

@@ -2,11 +2,16 @@ import React from 'react';
 import { UncontrolledDropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import LoginButton from './LoginButton'
 import { useAuth } from 'oidc-react'
+import { useLocation } from 'react-router-dom'
+
 
 const UserMenu = (props) =>{
   const auth = useAuth();
+  const location = useLocation();
 
   const handleLogin = () => {
+    const afterLoginDestination = `./#${location.pathname}`
+    localStorage.setItem('redirect_destination', afterLoginDestination);
     auth.signIn()
   }
 
