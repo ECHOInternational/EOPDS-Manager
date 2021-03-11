@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardBody, CardHeader, Badge, ListGroup, ListGroupItem } from 'reactstrap';
+import {ListGroup, ListGroupItem } from 'reactstrap';
 import CollapsableCard from '../../components/CollapsableCard';
 
 const PlantList = (props) => {

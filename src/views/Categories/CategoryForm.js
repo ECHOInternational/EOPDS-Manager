@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardBody, CardHeader, CardFooter, Col, Row } from 'reactstrap';
 import { SaveButton, RevertButton } from '../../components/FormActionButtons';
 import EditableTextField from '../../components/EditableTextField';
@@ -24,7 +24,6 @@ const CategoryForm = (props) => {
 		updateCategory,
 		{
 			loading: formIsSaving,
-			error: mutationError
 		}
 	] = useMutation(UPDATE_CATEGORY);
 
@@ -33,12 +32,12 @@ const CategoryForm = (props) => {
 		description: props.category.description
 	}
 
-	const { handleSubmit, errors, formState, reset, control, setValue } = useForm({
+	const { handleSubmit, errors, formState, reset, control, setError } = useForm({
 		defaultValues,
 		mode: 'onChange'
 	});
 
-	const { dirty, dirtyFields, isValid } = formState;
+	const { isDirty, dirtyFields, isValid } = formState;
 
 	const onSubmit = data => {
 			updateCategory({
@@ -49,10 +48,11 @@ const CategoryForm = (props) => {
 						description: data.description
 					}
 				}
-			}).catch((res) => {
-				console.log("Error was here.")
 			}).then((res) => {
-				reset(data);
+				reset(res.data.updateCategory.category)
+			}).catch((res) => {
+				setError("general", {type: "manual", message: res.message})
+				console.log(res.message)
 			});
 	}
 
@@ -72,7 +72,7 @@ const CategoryForm = (props) => {
 	return(
 		<form>
 			<PreventTransitionPrompt
-	          when={dirty}
+	          when={isDirty}
 	          title="Category Not Saved"
 	          message={`Do you want to save the changes made to "${props.category.name}"?`}
 	          onSave={handleSubmit(onSubmit)}
@@ -81,20 +81,28 @@ const CategoryForm = (props) => {
 				<CardBody>
 			<Row>
 				<Col xs="12">
-					<Card className={_statusClass({error: errors.name, dirty: dirtyFields.has("name")})}>
+					<Card className={_statusClass({error: errors.name, dirty: dirtyFields.name})}>
 						<CardBody>
 						<Controller
-							as={EditableTextField}
 							name="name"
 							control={control}
 							rules={{
 								required: {value: true, message: "must not be blank"}
 							}}
-							placeholder = "Enter a category name"
-							allowEdit = {true}
-							error={errors.name}
-							hasChanges={dirtyFields.has("name")}
-						/>
+							render={({ onChange, onBlur, value, name, ref }) => (
+								<EditableTextField
+									onBlur={onBlur}
+									onChange={onChange}
+									value={value}
+									name={name}
+									refs={ref}
+									placeholder = "Enter a category name"
+									allowEdit = {props.allowEdit}
+									error={errors.name}
+									hasChanges={dirtyFields.name}
+								/>
+							)}
+							/>
 						</CardBody>
 					</Card>
 				</Col>
@@ -106,10 +114,10 @@ const CategoryForm = (props) => {
 						name="description"
 						control={control}
 						label="Description"
-						allowEdit={true} 
+						allowEdit={props.allowEdit} 
 						showWordCount={true}
 						error={errors.description}
-						hasChanges={dirtyFields.has("description")}
+						hasChanges={dirtyFields.description}
 						placeholder="Enter a description"
 						/>
 				</Col>
@@ -119,11 +127,10 @@ const CategoryForm = (props) => {
 							Status
 						</CardHeader>
 						<CardBody>
-							<SaveButton isNew={false} hasChanges={dirty} canSave={isValid} saving={formIsSaving} onClick={handleSubmit(onSubmit)}/>		
-							<RevertButton hasChanges={dirty} onClick={_revert}/>
+							<SaveButton isNew={false} hasChanges={isDirty} canSave={isValid} saving={formIsSaving} onClick={handleSubmit(onSubmit)}/>		
+							<RevertButton hasChanges={isDirty} onClick={_revert}/>
+							{errors.general && <p>{errors.general.message}</p>}
 						</CardBody>
-							{/* <RevisionCollapse revisions={props.category.versions} onSelect={_loadRevision} selected={currentRevision}/> */}
-
 						<CardFooter>
 							Owner: {props.category.createdBy}
 						</CardFooter>
@@ -134,5 +141,6 @@ const CategoryForm = (props) => {
 			</Card>
 		</form>
 	)
-						}
+}
+
 export default CategoryForm;

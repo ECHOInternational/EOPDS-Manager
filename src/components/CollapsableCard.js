@@ -10,7 +10,7 @@ const CollapsableCard = (props) => {
     setIsOpen(!isOpen)
   }
 
-  const badge = props.badge == '' ? '' : <Badge>{props.badge}</Badge>
+  const badge = props.badge === '' ? '' : <Badge>{props.badge}</Badge>
 
   return(
     <Card>

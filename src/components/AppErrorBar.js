@@ -1,4 +1,3 @@
-import { Alert } from 'bootstrap';
 import React from 'react';
 import { UncontrolledAlert } from 'reactstrap';
 import './AppErrorBar.scss';

@@ -1,26 +1,10 @@
 import React from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 import SideBarNavLoader from '../../loaders/SideBarNavLoader';
 import * as router from 'react-router-dom';
 import { AppSidebarNav2 as AppSidebarNav } from '@coreui/react';
-
-const GET_COUNTS = gql`
-  query ItemCounts{
-    categories{
-      totalCount
-    },
-    plants{
-      totalCount
-    },
-    varieties{
-      totalCount
-    },
-    locations{
-      totalCount
-    }
-  }
-`  
+import { GET_COUNTS } from '../../queries/counters'
 
 const AppSideBarNavWithItemCounts = (props) => {
    const { t } = useTranslation('navigation');

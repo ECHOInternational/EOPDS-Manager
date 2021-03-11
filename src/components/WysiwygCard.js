@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Card, CardHeader, CardFooter} from 'reactstrap';
-import CKEditor from '@ckeditor/ckeditor5-react';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import PropTypes from 'prop-types';
 import EditableStatusIndicator from './EditableStatusIndicator';
@@ -72,7 +72,7 @@ class WysiwygCard extends Component {
 	render() {
 		const config = {
 			placeholder: this.props.placeholder
-		} 
+		}
 		return(
 			<Card className={this._statusClass()}>
 				<CardHeader>

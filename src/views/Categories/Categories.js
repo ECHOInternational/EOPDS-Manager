@@ -3,41 +3,18 @@ import useStickyState from '../../components/hooks/useStickyState';
 import { ListGroupItem, Card, CardBody } from 'reactstrap';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
 import ListControlNavbar from '../../components/ListControlNavbar';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import InfiniteScroll from 'react-infinite-scroller';
 import ListItemLoader from '../../loaders/ListItemLoader';
 import TileLoader from '../../loaders/TileLoader';
 import TileGridLoader from '../../loaders/TileGridLoader';
 import { useReactiveVar } from '@apollo/client';
 import { userCurrentLanguage } from '../../cache';
+import { GET_COUNTS } from '../../queries/counters';
+import { GET_CATEGORIES } from '../../queries/categories'
+import { DELETE_CATEGORY } from '../../mutations/categories'
 
 import './categories.scss';
-
-const GET_CATEGORIES = gql`
-	query Categories($afterCursor: String, $sortDirection: SortDirection, $name: String, $language: String){
-		categories(first: 4, after: $afterCursor, sortDirection: $sortDirection, name: $name, language: $language) @connection(key: "categories"){
-		    totalCount
-		    edges{
-		   	  node {
-		        id
-		        name
-		      }
-		    }
-	    	pageInfo {
-	    		endCursor
-	    		hasNextPage
-	    	}
-	    }
-	}
-`
-
-const DELETE_CATEGORY = gql`
-	mutation DeleteCategory($id: ID!){
-		deleteCategory(categoryId: $id){
-			categoryId
-		}
-	}
-`
 
 const Categories = (props) => {
 	const language = useReactiveVar(userCurrentLanguage);
@@ -90,7 +67,7 @@ const CategoriesList = (props) => {
 				name: props.name,
 				language: props.language,
 			},
-			fetchPolicy: 'network-only',
+			// fetchPolicy: 'network-only',
 			context: {
 				debounceKey: 'listsearchdebounce',
 				debounceTimeout: 100,
@@ -102,9 +79,31 @@ const CategoriesList = (props) => {
 		DELETE_CATEGORY,
 		{
 			update(cache, { data: { deleteCategory } }) {
-				const { categories } = cache.readQuery({ query: GET_CATEGORIES });
+				const { categories } = cache.readQuery({
+					query: GET_CATEGORIES,
+					variables: {
+						sortDirection: props.alphaSort,
+						name: props.name,
+						language: props.language,
+					}
+				});
+
+				cache.writeQuery({
+					query: GET_COUNTS,
+					data: {
+						categories: {
+							totalCount: categories.totalCount - 1
+						}
+					}
+				});
+
 				cache.writeQuery({
 					query: GET_CATEGORIES,
+					variables: {
+						sortDirection: props.alphaSort,
+						name: props.name,
+						language: props.language,
+					},
 					data: { categories:
 						{
 							totalCount: categories.totalCount - 1,
@@ -124,7 +123,13 @@ const CategoriesList = (props) => {
 	if (error) return `Error! ${error.message}`
 
 	const _onCategoryDelete = (id) => {
-		deleteCategory({variables: {id}});
+		deleteCategory({
+			variables: {
+				input: {
+					categoryId: id
+				}
+			}
+		});
 	}
 
 	const onLoadMore = () => {
@@ -134,6 +139,17 @@ const CategoriesList = (props) => {
           }
     })
 	}
+
+	const FirstImage = (image_edges) => {
+		const first_image_edge = image_edges[0]
+		var img_obj = {url: 'https://picsum.photos/seed/404/600/360', alt: 'placeholder.'}
+		if(first_image_edge) {
+			img_obj.url = first_image_edge.node.baseUrl || ''
+			img_obj.alt = first_image_edge.node.description || ''
+		}
+		return img_obj
+	}
+
 
 	if(props.mode === 'grid'){
 		return (
@@ -148,6 +164,7 @@ const CategoriesList = (props) => {
 								key={category.node.id}
 								id={category.node.id}
 								name={category.node.name}
+								image={FirstImage(category.node)}
 								onClick={props.onClick}
 								onDelete={_onCategoryDelete}
 							/>
@@ -192,7 +209,7 @@ const CategoryListGroupItem = (props) => {
 const CategoryCard = (props) =>{
 	return(
 		<Card className="card-grid-item animated fadeIn" onClick={() => props.onClick(props.id) } style={{cursor: 'pointer'}}>
-			<img className="card-img-top animated fadeIn" src={`https://picsum.photos/seed/${props.id}/600/360`} alt='' />
+			<img className="card-img-top animated fadeIn" src={props.image.url} alt={props.image.alt} />
 			<CardBody>
 				<h5 className="card-title">{props.name}</h5>
 				<DeleteConfirmationModal

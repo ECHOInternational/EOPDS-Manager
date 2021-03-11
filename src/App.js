@@ -13,6 +13,7 @@ import './App.scss';
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./containers/DefaultLayout'));
+// import DefaultLayout from './containers/DefaultLayout';
 
 // Pages
 const Page404 = React.lazy(() => import('./views/Pages/Page404'));
@@ -20,13 +21,28 @@ const Page500 = React.lazy(() => import('./views/Pages/Page500'));
 
 const oidcConfig = {
   authority: 'https://www.echocommunity.org/',
+  // authority: 'http://development.echocommunity.org:3000/',
   client_id: 'ALn5MoqIwgxC9NI8m-9Jim6uL4pBAuNgJOSd8v_Kqr4',
   redirect_uri: 'https://development.echocommunity.org:3001/',
   scope: 'openid profile read write',
-  response_type: 'code'
+  response_type: 'code',
+  automaticSilentRenew: true,
+  sendRequestsWithCredentials: true,
 }
 
 const userManager = new UserManager({...oidcConfig});
+
+// userManager.events.addAccessTokenExpiring(function(){
+//   console.log("token expiring...");
+// });
+
+// userManager.events.addUserLoaded(function(){
+//   console.log("user loaded");
+// });
+
+// userManager.events.addUserUnloaded(function(){
+//   console.log("user unloaded");
+// });
 
 const httpLink = new HttpLink({
   // uri: 'https://plant-api.echocommunity.org/graphql'
@@ -57,7 +73,7 @@ const asyncAuthLink = setContext(async (_, {headers}) => {
 
   const token = user.access_token
   if(!token) return;
-  
+
   return{
     headers:{
       ...headers,
@@ -76,7 +92,11 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, extensions }) => {
       var error_message = ''
-      switch(extensions.code) {
+      switch(extensions?.code) {
+        case 401:
+          userManager.signinSilent().then(forward(operation));  
+          error_message = `The user is Not Logged In.: ${message}`
+          break;
         case 403:
           error_message = `The user is unauthorized: ${message}`
           break;

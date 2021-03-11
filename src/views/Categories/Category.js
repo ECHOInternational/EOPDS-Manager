@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
 import { gql, useQuery, useReactiveVar } from '@apollo/client';
-import { TabContent, Nav, NavItem, NavLink, TabPane, Row, Col } from 'reactstrap';
+import { TabContent, Nav, NavItem, NavLink, TabPane} from 'reactstrap';
 import classnames from 'classnames';
 import CategoryForm from './CategoryForm';
+import CategoryTranslationsForm from './CategoryTranslationsForm'
 import PlantList from './PlantList'
 import { userCurrentLanguage } from '../../cache';
 
@@ -51,7 +52,7 @@ const Category = (props) => {
 			id,
 			language: language,
 		},
-		fetchPolicy: 'network-only',
+		// fetchPolicy: 'network-only',
 		onCompleted: (data) => {
 			setUserCanEdit(true); //TODO! This needs to check if user can edit. 
 		},
@@ -105,7 +106,11 @@ const Category = (props) => {
 				/>
 			</TabPane>
 			<TabPane tabId='translate'>
-				Put translations here.
+			<CategoryTranslationsForm
+					category={data.category}
+					allowEdit={userCanEdit}
+				/>
+				<div>Something</div>
 			</TabPane>
 			<TabPane tabId='plants'>
 				<PlantList
